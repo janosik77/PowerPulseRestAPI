@@ -1,0 +1,38 @@
+﻿using PowerPulseRestAPI.Data.Enums;
+using PowerPulseRestAPI.Data.Models.StockRequestModels;
+using PowerPulseRestAPI.Data.Models.ToolsModels;
+using PowerPulseRestAPI.Data.Models.UsersModels;
+
+namespace PowerPulseRestAPI.Data.Models.VehicleModels
+{
+
+
+    public class Vehicle
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string PlateNumber { get; set; } = null!;
+        public string? Vin { get; set; }
+        public string? Make { get; set; }
+        public string? Model { get; set; }
+        public int? Year { get; set; }
+        public VehicleStatus Status { get; set; }
+        public int? CurrentMileage { get; set; }
+        public DateOnly? LastServiceAt { get; set; }
+        public int? LastServiceMileage { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+        public List<MaterialMovement> MaterialMovements { get; set; } = new();
+        public List<MaterialVehicleBalance> MaterialBalances { get; set; } = new();
+        public List<ToolAssignment> ToolAssignments { get; set; } = new();
+        public List<VehicleAssignment> Assignments { get; set; } = new();
+        public List<VehicleMileageRecord> MileageRecords { get; set; } = new();
+        public List<ServiceOrder> ServiceOrders { get; set; } = new();
+        public List<VehicleIssue> Issues { get; set; } = new();
+        public List<StockRequest> StockRequests { get; set; } = new();
+        public List<Notification> Notifications { get; set; } = new();
+
+
+    }
+
+}

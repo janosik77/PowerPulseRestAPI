@@ -1,0 +1,6 @@
+@PowerPulseRestAPI_HostAddress = http://localhost:5048
+
+GET {{PowerPulseRestAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
