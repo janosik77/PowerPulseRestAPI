@@ -12,6 +12,6 @@ namespace PowerPulseRestAPI.Data.Models.UsersModels
         public long CreatedByUserId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
 
-        public User? CreatedByUser { get; set; }
+        public User CreatedByUser { get; set; } = null!;
     }
 }

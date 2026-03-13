@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: powerpulse-db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Str0ng!Passw0rd2026"
+    ports:
+      - "1433:1433"
+    volumes:
+      - powerpulse_db:/var/opt/mssql
+
+  api:
+    build:
+      context: ../PowerPulseRestAPI/PowerPulseRestAPI
+      dockerfile: Dockerfile
+    image: powerpulse-api:dev
+    container_name: powerpulse-api
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Docker"
+      ConnectionStrings__PowerPulseContext: "Server=db,1433;Database=PowerPulseContext-2026;User Id=sa;Password=Str0ng!Passw0rd2026;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  powerpulse_db:

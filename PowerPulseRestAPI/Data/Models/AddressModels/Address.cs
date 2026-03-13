@@ -1,4 +1,6 @@
-﻿namespace PowerPulseRestAPI.Data.Models.AddressModels
+﻿using PowerPulseRestAPI.Data.Enums;
+
+namespace PowerPulseRestAPI.Data.Models.AddressModels
 {
     public class Address
     {
@@ -10,11 +12,11 @@
         public string BuildingNumber { get; set; } = null!;
         public string? ApartmentNumber { get; set; }
         public string? FullText { get; set; }
-        public decimal? Latitude { get; set; }
-        public decimal? Longitude { get; set; }
+        public long? PersonId {get; set;}
+        public long? ProjectId {get; set;}
+        public AddressType AddressType { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
-        public List<EntityAddress> EntityLinks { get; set; } = new();
 
     }
 }

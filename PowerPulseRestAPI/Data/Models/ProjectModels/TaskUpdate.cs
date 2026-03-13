@@ -14,8 +14,8 @@ namespace PowerPulseRestAPI.Data.Models.ProjectModels
         public long CreatedByUserId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
 
-        public ProjectTask? Task { get; set; }
-        public User? CreatedByUser { get; set; }
+        public ProjectTask Task { get; set; } = null!;
+        public User CreatedByUser { get; set; } = null!;
     }
 
 }

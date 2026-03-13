@@ -17,26 +17,21 @@ namespace PowerPulseRestAPI.Data.Models.VehicleModels
         public ServiceOrderApprovalStatus ApprovalStatus { get; set; }
         public long? ApprovedByUserId { get; set; }
         public DateTimeOffset? ApprovedAt { get; set; }
-        public string? ApprovalNote { get; set; }
         public string? ServiceProviderName { get; set; }
         public string? ServiceProviderPhone { get; set; }
         public DateTimeOffset? AppointmentAt { get; set; }
-        public string? AppointmentNote { get; set; }
         public ServiceOrderStatus Status { get; set; }
-        public DateTimeOffset? SentToServiceAt { get; set; }
-        public DateTimeOffset? ReturnedFromServiceAt { get; set; }
         public int? MileageAtService { get; set; }
         public string? FinalDescription { get; set; }
         public decimal? TotalCost { get; set; }
         public string Currency { get; set; } = "PLN";
         public string? InvoiceNumber { get; set; }
-        public PaidStatus? PaidStatus { get; set; }
         public long? CompletedByUserId { get; set; }
         public DateTimeOffset? CompletedAt { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
 
-        public Vehicle? Vehicle { get; set; }
+        public Vehicle Vehicle { get; set; } = null!;
         public User? RequestedByUser { get; set; }
         public User? ApprovedByUser { get; set; }
         public User? CompletedByUser { get; set; }

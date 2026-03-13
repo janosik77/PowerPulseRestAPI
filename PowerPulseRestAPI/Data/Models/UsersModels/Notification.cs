@@ -1,6 +1,6 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
 using PowerPulseRestAPI.Data.Models.ProjectModels;
-using PowerPulseRestAPI.Data.Models.PurchaseReqModels;
+using PowerPulseRestAPI.Data.Models.StockRequestModels;
 using PowerPulseRestAPI.Data.Models.ToolsModels;
 using PowerPulseRestAPI.Data.Models.VehicleModels;
 
@@ -20,19 +20,19 @@ namespace PowerPulseRestAPI.Data.Models.UsersModels
         public DateTimeOffset? ReadAt { get; set; }
         public long? RelatedProjectId { get; set; }
         public long? RelatedTaskId { get; set; }
-        public long? RelatedPurchaseRequestId { get; set; }
+        public long? RelatedStockRequestId { get; set; }
         public long? RelatedVehicleId { get; set; }
-        public long? RelatedToolAssetId { get; set; }
+        public long? RelatedToolId { get; set; }
         public long? CreatedByUserId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
 
-        public User? User { get; set; }
+        public User User { get; set; } = null!;
         public Project? RelatedProject { get; set; }
         public ProjectTask? RelatedTask { get; set; }
-        public PurchaseRequest? RelatedPurchaseRequest { get; set; }
         public Vehicle? RelatedVehicle { get; set; }
-        public ToolAsset? RelatedToolAsset { get; set; }
         public User? CreatedByUser { get; set; }
+        public Tool? RelatedTool { get; set; }
+        public StockRequest? RelatedStockRequest { get; set; }
     }
 
 }

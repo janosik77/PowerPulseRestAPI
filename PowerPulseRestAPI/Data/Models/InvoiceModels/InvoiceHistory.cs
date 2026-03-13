@@ -15,7 +15,7 @@ namespace PowerPulseRestAPI.Data.Models.InvoiceModels
         public long ChangedByUserId { get; set; }
         public DateTimeOffset ChangedAt { get; set; }
 
-        public Invoice? Invoice { get; set; }
+        public Invoice Invoice { get; set; } = null!;
         public User? ChangedByUser { get; set; }
     }
 

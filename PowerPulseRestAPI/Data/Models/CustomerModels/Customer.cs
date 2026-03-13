@@ -12,16 +12,13 @@ namespace PowerPulseRestAPI.Data.Models.CustomerModels
         public CustomerStatus Status { get; set; }
         public string Name { get; set; } = null!;
         public string? TaxId { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
-        public string? Note { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
-        public List<CustomerContact> Contacts { get; set; } = new();
-        public List<ProjectCustomer> ProjectCustomers { get; set; } = new();
+
         public List<CustomerNote> Notes { get; set; } = new();
         public List<Invoice> Invoices { get; set; } = new();
-
+        public List<CustomerPerson> Contacts { get; set; } = new();
+        public List<Project> Projects { get; set; } = new();
     }
 
 }

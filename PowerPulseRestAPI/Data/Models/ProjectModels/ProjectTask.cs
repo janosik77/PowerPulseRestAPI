@@ -12,6 +12,8 @@ namespace PowerPulseRestAPI.Data.Models.ProjectModels
         public long ProjectId { get; set; }
         public string Title { get; set; } = null!;
         public string? Description { get; set; }
+        public string? Url { get; set; } = null!;
+        public string? Caption { get; set; }
         public TaskPriority Priority { get; set; }
         public ProjectTaskStatus Status { get; set; }
         public DateTimeOffset? DueAt { get; set; }
@@ -21,11 +23,10 @@ namespace PowerPulseRestAPI.Data.Models.ProjectModels
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
 
-        public Project? Project { get; set; }
-        public User? CreatedByUser { get; set; }
+        public Project Project { get; set; } = null!;
+        public User CreatedByUser { get; set; } = null!;
         public Employee? AssignedToEmployee { get; set; }
         public List<TaskUpdate> Updates { get; set; } = new();
-        public List<TaskAttachment> Attachments { get; set; } = new();
         public List<Notification> Notifications { get; set; } = new();
 
     }

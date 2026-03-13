@@ -1,12 +1,33 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>e5a8a4ef-f927-480c-9de4-ed2074a47da1</UserSecretsId>
-    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+	  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	  <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data\Models\PurchaseReqModels\**" />
+    <Content Remove="Data\Models\PurchaseReqModels\**" />
+    <EmbeddedResource Remove="Data\Models\PurchaseReqModels\**" />
+    <None Remove="Data\Models\PurchaseReqModels\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data\Configurations\PurchaseRequestConfiguration.cs" />
+    <Compile Remove="Data\Configurations\PurchaseRequestItemConfiguration.cs" />
+    <Compile Remove="Data\Configurations\ServiceOrderConfiguration.cs" />
+    <Compile Remove="Data\Configurations\ServiceOrderHistoryConfiguration.cs" />
+    <Compile Remove="Data\Configurations\StockRequestModelsCfg\StockRequestFulfillmentConfiguration.cs" />
+    <Compile Remove="Data\Configurations\StockRequestModelsCfg\StockRequestFulfillmentItemConfiguration.cs" />
+    <Compile Remove="Data\Configurations\StockRequestReservationConfiguration.cs" />
+    <Compile Remove="Data\Models\StockModels\StockRequestFulfillment.cs" />
+    <Compile Remove="Data\Models\StockModels\StockRequestFulfillmentItem.cs" />
+    <Compile Remove="Data\Models\StockModels\StockRequestReservation.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.13" />
@@ -18,6 +39,22 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.13" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DTO\AddressDto\Response\" />
+    <Folder Include="DTO\EmployeeDto\Requests\" />
+    <Folder Include="DTO\EmployeeDto\Responses\" />
+    <Folder Include="DTO\InvoiceDto\Request\" />
+    <Folder Include="DTO\InvoiceDto\Response\" />
+    <Folder Include="DTO\ProjectDto\Request\" />
+    <Folder Include="DTO\ProjectDto\Response\" />
+    <Folder Include="DTO\StorageMaterialDto\Request\" />
+    <Folder Include="DTO\StorageMaterialDto\Response\" />
+    <Folder Include="DTO\UsersDto\Request\" />
+    <Folder Include="DTO\UsersDto\Response\" />
+    <Folder Include="Services\NewFolder\" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 
 </Project>

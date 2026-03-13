@@ -1,16 +1,5 @@
 ﻿namespace PowerPulseRestAPI.Data.Enums
 {
-    // =======================================================
-    // LEAVE MANAGEMENT (urlopy / absencje)
-    // =======================================================
-
-    /// <summary>Typ urlopu</summary>
-    public enum LeaveType { VACATION, SICK, UNPAID, OTHER }
-
-    /// <summary>Status wniosku urlopowego</summary>
-    public enum LeaveStatus { DRAFT, SUBMITTED, APPROVED, REJECTED, CANCELED }
-
-
 
     // =======================================================
     // PROJECT & TASK MANAGEMENT
@@ -37,10 +26,6 @@
     /// <summary>Status sesji pracy</summary>
     public enum WorkSessionStatus { IN_PROGRESS, PAUSED, COMPLETED }
 
-    /// <summary>Typ zdarzenia sesji pracy</summary>
-    public enum WorkSessionEventType { START, ARRIVED, BREAK_START, BREAK_END, FINISH, OTHER }
-
-
 
     // =======================================================
     // CUSTOMERS & RELATIONSHIPS
@@ -53,10 +38,9 @@
     public enum CustomerStatus { LEAD, ACTIVE, INACTIVE }
 
     /// <summary>Relacja klienta z projektem</summary>
-    public enum ProjectCustomerRelationshipType { OWNER, CO_OWNER, MANAGER, OTHER }
+    public enum CustomerContactRole { OWNER, CO_OWNER, MANAGER, OTHER }
 
-    /// <summary>Rola kontaktu klienta w projekcie</summary>
-    public enum ProjectCustomerContactRole { OWNER, MANAGER, CONTACT, OTHER }
+
 
 
 
@@ -67,16 +51,16 @@
     /// <summary>Typ ruchu materiału</summary>
     public enum MaterialMovementType
     {
-        RECEIPT,
-        TRANSFER_TO_PROJECT,
-        TRANSFER_TO_VEHICLE,
-        RETURN_FROM_PROJECT,
-        CONSUME_ON_PROJECT,
-        ADJUSTMENT
+        PURCHASE_RECEIPT = 1, // zakup / przyjęcie do magazynu
+        ISSUE_TO_PROJECT = 2, // wydanie z magazynu na projekt
+        RETURN_FROM_PROJECT = 3, // zwrot z projektu do magazynu
+        WAREHOUSE_ADJUSTMENT = 4 // korekta magazynu
     }
-
-
-
+    public enum MaterialTransferEndpointType
+    {
+        Warehouse = 1,
+        Project = 2
+    }
     // =======================================================
     // TOOLS & ASSETS
     // =======================================================
@@ -85,14 +69,13 @@
     public enum ToolCondition { NEW, GOOD, OK, DAMAGED, LOST }
 
     /// <summary>Status zasobu narzędziowego</summary>
-    public enum ToolAssetStatus { IN_STOCK, ASSIGNED, IN_SERVICE, RETIRED }
+    public enum ToolStatus { IN_STOCK, ASSIGNED, IN_SERVICE, RETIRED }
 
     /// <summary>Typ zgłoszenia narzędzia</summary>
     public enum ToolIssueType { DAMAGE, LOST, OTHER }
 
     /// <summary>Uniwersalny status obiektu</summary>
     public enum GenericStatus { NEW, IN_PROGRESS, RESOLVED, REJECTED }
-
 
 
     // =======================================================
@@ -103,7 +86,7 @@
     public enum PurchasePriority { LOW, NORMAL, HIGH }
 
     /// <summary>Status zamówienia zakupu</summary>
-    public enum PurchaseStatus { NEW, APPROVED, REJECTED, ORDERED, DELIVERED }
+    //public enum PurchaseStatus { NEW, APPROVED, REJECTED, ORDERED, DELIVERED }
 
 
 
@@ -112,16 +95,13 @@
     // =======================================================
 
     /// <summary>Status pojazdu</summary>
-    public enum VehicleStatus { ACTIVE, IN_SERVICE, OUT_OF_SERVICE, SOLD }
+    public enum VehicleStatus { ACTIVE, IN_SERVICE, OUT_OF_SERVICE, SOLD, DISPOSED }
 
     /// <summary>Status zatwierdzenia zlecenia serwisowego</summary>
     public enum ServiceOrderApprovalStatus { PENDING, APPROVED, REJECTED }
 
     /// <summary>Status zlecenia serwisowego</summary>
     public enum ServiceOrderStatus { DRAFT, PENDING_APPROVAL, APPROVED, SCHEDULED, IN_SERVICE, COMPLETED, CANCELED }
-
-    /// <summary>Status płatności</summary>
-    public enum PaidStatus { UNPAID, PAID, PARTIAL }
 
     /// <summary>Źródło przebiegu</summary>
     public enum MileageSourceType { MANUAL, SERVICE_ORDER, OTHER }
@@ -172,15 +152,21 @@
     public enum StockRequestType { MATERIAL, TOOL, MIXED }
 
     /// <summary>Status zapotrzebowania magazynowego</summary>
-    public enum StockRequestStatus { DRAFT, SUBMITTED, APPROVED, REJECTED, PREPARED, ISSUED, CANCELED }
+    public enum StockRequestStatus {
+        NEW = 1,
+        PENDING = 2,
+        CLOSED = 3,
+        REJECTED = 4,
+        CANCELLED = 5
+    }
 
     /// <summary>Typ pozycji magazynowej</summary>
     public enum StockItemType { MATERIAL, TOOL }
 
     /// <summary>Status rezerwacji</summary>
-    public enum ReservationStatus { ACTIVE, RELEASED, CONSUMED, CANCELED }
+    //public enum ReservationStatus { ACTIVE, RELEASED, CONSUMED, CANCELED }
 
-
+    //public enum WarehouseTab{MATERIALS = 1, TOOLS = 2}
 
     // =======================================================
     // INVOICING 
@@ -190,10 +176,8 @@
     public enum InvoiceStatus { DRAFT, ISSUED, PAID, PARTIAL, CANCELED }
 
     /// <summary>Typ pozycji faktury</summary>
-    public enum InvoiceItemType { LABOR, MATERIAL, OTHER }
+    public enum InvoiceItemType { LABOR, MATERIAL }
 
-    /// <summary>Źródło pozycji faktury</summary>
-    public enum InvoiceSourceType { MATERIAL_MOVEMENT, WORK_SESSION, OTHER }
 
 
 
@@ -205,9 +189,6 @@
     /// <summary>Typ identyfikatora osoby</summary>
     public enum IdentifierType { PESEL, SSN, PASSPORT }
 
-    /// <summary>Typ zatrudnienia</summary>
-    public enum EmployeeType { UNKNOWN, FULL_TIME, PART_TIME, CONTRACTOR }
-
     /// <summary>Status pracownika</summary>
     public enum EmployeeStatus { ACTIVE, INACTIVE, TERMINATED }
 
@@ -217,8 +198,6 @@
     // GENERIC DOMAIN TYPES
     // =======================================================
 
-    /// <summary>Typ encji systemowej</summary>
-    public enum EntityType { CUSTOMER, PROJECT, PERSON, COMPANY, WAREHOUSE, DELIVERY }
 
     /// <summary>Typ adresu</summary>
     public enum AddressType { MAIN, BILLING, SHIPPING, PROJECT_LOCATION, HOME, OFFICE, OTHER }

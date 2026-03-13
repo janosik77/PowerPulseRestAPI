@@ -13,7 +13,7 @@ namespace PowerPulseRestAPI.Data.Models.CustomerModels
         public long CreatedByUserId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
 
-        public Customer? Customer { get; set; }
-        public User? CreatedByUser { get; set; }
+        public Customer Customer { get; set; } = null!;
+        public User CreatedByUser { get; set; } = null!;
     }
 }

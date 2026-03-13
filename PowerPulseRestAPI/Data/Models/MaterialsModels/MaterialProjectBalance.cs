@@ -1,6 +1,6 @@
 ﻿using PowerPulseRestAPI.Data.Models.ProjectModels;
 
-namespace PowerPulseRestAPI.Data.Models
+namespace PowerPulseRestAPI.Data.Models.MaterialsModels
 {
 
 
@@ -11,8 +11,10 @@ namespace PowerPulseRestAPI.Data.Models
             public decimal Quantity { get; set; }
             public DateTimeOffset UpdatedAt { get; set; }
 
-            public Material? Material { get; set; }
-            public Project? Project { get; set; }
+            public byte[] RowVersion { get; set; } = null!;
+
+            public Material Material { get; set; } = null!;
+            public Project Project { get; set; } = null!;
         }
     
 }

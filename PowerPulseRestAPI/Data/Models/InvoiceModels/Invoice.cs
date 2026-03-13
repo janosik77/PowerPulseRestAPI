@@ -1,5 +1,6 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
 using PowerPulseRestAPI.Data.Models.CustomerModels;
+using PowerPulseRestAPI.Data.Models.MaterialsModels;
 using PowerPulseRestAPI.Data.Models.ProjectModels;
 using PowerPulseRestAPI.Data.Models.UsersModels;
 
@@ -35,6 +36,7 @@ namespace PowerPulseRestAPI.Data.Models.InvoiceModels
         public User? IssuedByUser { get; set; }
         public List<InvoiceItem> Items { get; set; } = new();
         public List<InvoiceHistory> History { get; set; } = new();
-
+        public List<WorkSession> WorkSessions { get; set; } = new();
+        public List<MaterialProjectConsume> MaterialProjectConsumes { get; set; } = new();
     }
 }

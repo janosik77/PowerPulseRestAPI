@@ -1,4 +1,4 @@
-﻿using PowerPulseRestAPI.Data.Models.PurchaseReqModels;
+﻿using PowerPulseRestAPI.Data.Enums;
 using PowerPulseRestAPI.Data.Models.StockRequestModels;
 
 namespace PowerPulseRestAPI.Data.Models.ToolsModels
@@ -15,15 +15,19 @@ namespace PowerPulseRestAPI.Data.Models.ToolsModels
         public string? Manufacturer { get; set; }
         public string? Model { get; set; }
         public string? Barcode { get; set; }
-        public bool IsActive { get; set; }
+        public string? SerialNumber { get; set; }
+        public bool IsActive { get; set; } = true;
+        public string Url { get; set; } = null!;
+        public ToolCondition Condition { get; set; }
+        public ToolStatus Status { get; set; }
+        public DateOnly? PurchaseDate { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
 
         public ToolCategory? Category { get; set; }
-        public List<ToolImage> Images { get; set; } = new();
-        public List<ToolAsset> Assets { get; set; } = new();
-        public List<PurchaseRequestItem> PurchaseRequestItems { get; set; } = new();
         public List<StockRequestItem> StockRequestItems { get; set; } = new();
+        public List<ToolAssignment> Assignments { get; set; } = new();
+        public List<ToolIssue> Issues { get; set; } = new();
     }
 
 }

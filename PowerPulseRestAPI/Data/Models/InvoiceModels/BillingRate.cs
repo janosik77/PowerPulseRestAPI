@@ -9,12 +9,12 @@ namespace PowerPulseRestAPI.Data.Models.InvoiceModels
         public long ProjectId { get; set; }     // wymagane
         public string Name { get; set; } = null!;
         public decimal HourlyRate { get; set; }
-        public string Currency { get; set; }
+        public string Currency { get; set; } = null!;
         public bool IsActive { get; set; }
         public DateOnly ValidFrom { get; set; }
         public DateOnly? ValidTo { get; set; }
 
-        public Project? Project { get; set; }
+        public Project Project { get; set; } = null!;
     }
 
 }

@@ -15,9 +15,8 @@ namespace PowerPulseRestAPI.Data.Models.VehicleModels
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
 
-        public Vehicle? Vehicle { get; set; }
+        public Vehicle Vehicle { get; set; } = null!;
         public User? ReportedByUser { get; set; }
-        public List<VehicleIssueAttachment> Attachments { get; set; } = new();
 
     }
 

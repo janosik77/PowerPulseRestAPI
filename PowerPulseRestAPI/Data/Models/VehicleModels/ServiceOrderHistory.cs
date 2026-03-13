@@ -15,8 +15,8 @@ namespace PowerPulseRestAPI.Data.Models.VehicleModels
         public long ChangedByUserId { get; set; }
         public DateTimeOffset ChangedAt { get; set; }
 
-        public ServiceOrder? ServiceOrder { get; set; }
-        public User? ChangedByUser { get; set; }
+        public ServiceOrder ServiceOrder { get; set; } = null!;
+        public User ChangedByUser { get; set; } = null!;
     }
 
 }
