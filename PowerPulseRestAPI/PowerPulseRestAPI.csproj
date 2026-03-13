@@ -42,17 +42,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\AddressDto\Response\" />
+    <Folder Include="DTO\AddressDto\Responses\" />
+    <Folder Include="DTO\CustomerDto\Requests\" />
+    <Folder Include="DTO\CustomerDto\Responses\" />
     <Folder Include="DTO\EmployeeDto\Requests\" />
     <Folder Include="DTO\EmployeeDto\Responses\" />
-    <Folder Include="DTO\InvoiceDto\Request\" />
-    <Folder Include="DTO\InvoiceDto\Response\" />
-    <Folder Include="DTO\ProjectDto\Request\" />
-    <Folder Include="DTO\ProjectDto\Response\" />
-    <Folder Include="DTO\StorageMaterialDto\Request\" />
-    <Folder Include="DTO\StorageMaterialDto\Response\" />
-    <Folder Include="DTO\UsersDto\Request\" />
-    <Folder Include="DTO\UsersDto\Response\" />
+    <Folder Include="DTO\InvoiceDto\Requests\" />
+    <Folder Include="DTO\InvoiceDto\Responses\" />
+    <Folder Include="DTO\MaterialDto\Requests\" />
+    <Folder Include="DTO\MaterialDto\Responses\" />
+    <Folder Include="DTO\ProjectDto\Requests\" />
+    <Folder Include="DTO\ProjectDto\Responses\" />
+    <Folder Include="DTO\StorageMaterialDto\Requests\" />
+    <Folder Include="DTO\StorageMaterialDto\Responses\" />
+    <Folder Include="DTO\ToolDto\Requests\" />
+    <Folder Include="DTO\ToolDto\Responses\" />
+    <Folder Include="DTO\UsersDto\Requests\" />
+    <Folder Include="DTO\UsersDto\Responses\" />
+    <Folder Include="DTO\VehicleDto\Requests\" />
+    <Folder Include="DTO\VehicleDto\Responses\" />
     <Folder Include="Services\NewFolder\" />
     <Folder Include="Validators\" />
   </ItemGroup>

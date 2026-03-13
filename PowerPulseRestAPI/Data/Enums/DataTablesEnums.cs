@@ -118,12 +118,16 @@
     /// <summary>Ważność powiadomienia</summary>
     public enum NotificationSeverity { INFO, WARNING, CRITICAL }
 
-    /// <summary>Typ encji w logu aktywności</summary>
-    public enum ActivityEntityType { PROJECT, TASK, MATERIAL, TOOL, VEHICLE, SESSION, OTHER }
-
     /// <summary>Typ akcji w logu aktywności</summary>
     public enum ActivityActionType { CREATED, UPDATED, STATUS_CHANGED, ASSIGNED, CONSUMED, COMMENTED, ATTACHED, OTHER }
 
+    public enum TextTemplateChannel
+    {
+        UI = 1,
+        PAGE = 2,
+        MESSAGE = 3,
+        NOTIFICATION = 4
+    }
 
 
     // =======================================================

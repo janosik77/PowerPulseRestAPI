@@ -26,33 +26,25 @@ namespace PowerPulseRestAPI.Data
         public DbSet<PersonIdentifier> PersonIdentifiers => Set<PersonIdentifier>();
         public DbSet<Employee> Employees => Set<Employee>();
         public DbSet<EmployeeCompensation> EmployeeCompensations => Set<EmployeeCompensation>();
-        public DbSet<EmployeeBankAccount> EmployeeBankAccounts => Set<EmployeeBankAccount>();
 
-        // C) Leaves
-        public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
 
         // D) Projects
         public DbSet<Project> Projects => Set<Project>();
         public DbSet<ProjectAccess> ProjectAccesses => Set<ProjectAccess>();
         public DbSet<ProjectTask> ProjectTasks => Set<ProjectTask>();
         public DbSet<TaskUpdate> TaskUpdates => Set<TaskUpdate>();
-        public DbSet<TaskAttachment> TaskAttachments => Set<TaskAttachment>();
         public DbSet<ProjectNote> ProjectNotes => Set<ProjectNote>();
         public DbSet<ProjectAttachment> ProjectAttachments => Set<ProjectAttachment>();
 
         // E) Work sessions
         public DbSet<WorkSession> WorkSessions => Set<WorkSession>();
-        public DbSet<WorkSessionEvent> WorkSessionEvents => Set<WorkSessionEvent>();
 
         // F) Customers
         public DbSet<Customer> Customers => Set<Customer>();
-        public DbSet<CustomerContact> CustomerContacts => Set<CustomerContact>();
-        public DbSet<ProjectCustomer> ProjectCustomers => Set<ProjectCustomer>();
-        public DbSet<ProjectCustomerContact> ProjectCustomerContacts => Set<ProjectCustomerContact>();
         public DbSet<CustomerNote> CustomerNotes => Set<CustomerNote>();
+        public DbSet<CustomerPerson> CustomerPersons => Set<CustomerPerson>();
 
         // G) Warehouse materials
-        public DbSet<StorageLocation> StorageLocations => Set<StorageLocation>();
         public DbSet<MaterialCategory> MaterialCategories => Set<MaterialCategory>();
         public DbSet<Material> Materials => Set<Material>();
         public DbSet<MaterialStock> MaterialStocks => Set<MaterialStock>();
@@ -63,7 +55,6 @@ namespace PowerPulseRestAPI.Data
         // H) Tools
         public DbSet<ToolCategory> ToolCategories => Set<ToolCategory>();
         public DbSet<Tool> Tools => Set<Tool>();
-        public DbSet<ToolStock> ToolAssetStocks => Set<ToolStock>();
         public DbSet<ToolAssignment> ToolAssignments => Set<ToolAssignment>();
         public DbSet<ToolIssue> ToolIssues => Set<ToolIssue>();
 
@@ -78,11 +69,9 @@ namespace PowerPulseRestAPI.Data
         public DbSet<ServiceOrder> ServiceOrders => Set<ServiceOrder>();
         public DbSet<ServiceOrderHistory> ServiceOrderHistories => Set<ServiceOrderHistory>();
         public DbSet<VehicleIssue> VehicleIssues => Set<VehicleIssue>();
-        public DbSet<VehicleIssueAttachment> VehicleIssueAttachments => Set<VehicleIssueAttachment>();
 
         // K) Notifications & logs
         public DbSet<Notification> Notifications => Set<Notification>();
-        public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
 
         // L) Knowledge base
         public DbSet<KnowledgeCategory> KnowledgeCategories => Set<KnowledgeCategory>();
@@ -96,7 +85,6 @@ namespace PowerPulseRestAPI.Data
 
         // N) Addresses
         public DbSet<Address> Addresses => Set<Address>();
-        public DbSet<EntityAddress> EntityAddresses => Set<EntityAddress>();
 
         // O) Stock requests
         public DbSet<StockRequest> StockRequests => Set<StockRequest>();
@@ -106,7 +94,6 @@ namespace PowerPulseRestAPI.Data
         // P) Invoices
         public DbSet<Invoice> Invoices => Set<Invoice>();
         public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
-        public DbSet<InvoiceItemSource> InvoiceItemSources => Set<InvoiceItemSource>();
         public DbSet<InvoiceHistory> InvoiceHistories => Set<InvoiceHistory>();
         public DbSet<BillingRate> BillingRates => Set<BillingRate>();
 

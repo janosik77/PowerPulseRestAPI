@@ -39,7 +39,6 @@ namespace PowerPulseRestAPI.Data.Models.UsersModels
         public List<VehicleIssue> VehicleIssuesReported { get; set; } = new();
         public List<Notification> Notifications { get; set; } = new();
         public List<Notification> CreatedNotifications { get; set; } = new();
-        public List<ActivityLog> ActivityLogs { get; set; } = new();
         public List<KnowledgeArticle> KnowledgeArticlesCreated { get; set; } = new();
         public List<KnowledgeArticle> KnowledgeArticlesUpdated { get; set; } = new();
         public List<KnowledgeArticleFavorite> KnowledgeFavorites { get; set; } = new();

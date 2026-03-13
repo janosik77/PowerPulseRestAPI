@@ -19,7 +19,7 @@ namespace PowerPulseRestAPI.Data.Models.ToolsModels
         public DateTimeOffset UpdatedAt { get; set; }
 
         public Tool Tool { get; set; } = null!;
-        public User ReportedByUser { get; set; } = null!;
+        public User? ReportedByUser { get; set; }
 
     }
 

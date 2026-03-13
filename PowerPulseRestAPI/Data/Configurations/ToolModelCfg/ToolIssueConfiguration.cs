@@ -62,7 +62,7 @@ public class ToolIssueConfiguration : IEntityTypeConfiguration<ToolIssue>
         b.HasOne(x => x.ReportedByUser)
             .WithMany(u => u.ReportedToolIssues)
             .HasForeignKey(x => x.ReportedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         b.HasIndex(x => x.ToolId);
         b.HasIndex(x => x.ReportedByUserId);
