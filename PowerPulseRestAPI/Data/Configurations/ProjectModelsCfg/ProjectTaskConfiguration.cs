@@ -51,7 +51,7 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
             b.Property(x => x.DueAt)
                 .HasColumnName("due_at");
 
-            b.Property(x => x.EstimatedMinutes)
+            b.Property(x => x.EstimatedHours)
                 .HasColumnName("estimated_minutes");
 
             b.Property(x => x.CreatedByUserId)

@@ -29,7 +29,6 @@ namespace PowerPulseRestAPI.Data.Models.UsersModels
         public Project Project { get; set; } = null!;
         public User StartedByUser { get; set; } = null!;
         public List<ProjectNote> Notes { get; set; } = new();
-        public List<ProjectAttachment> Attachments { get; set; } = new();
     }
 
 }

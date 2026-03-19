@@ -19,9 +19,6 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .HasColumnName("project_id")
                 .IsRequired();
 
-            b.Property(x => x.WorkSessionId)
-                .HasColumnName("work_session_id");
-
             b.Property(x => x.CreatedByUserId)
                 .HasColumnName("created_by_user_id")
                 .IsRequired();
@@ -47,18 +44,12 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
 
             b.HasIndex(x => x.ProjectId);
             b.HasIndex(x => new { x.ProjectId, x.CreatedAt });
-            b.HasIndex(x => x.WorkSessionId);
             b.HasIndex(x => x.CreatedByUserId);
 
             b.HasOne(x => x.Project)
                 .WithMany(p => p.Attachments)
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            b.HasOne(x => x.WorkSession)
-                .WithMany()
-                .HasForeignKey(x => x.WorkSessionId)
-                .OnDelete(DeleteBehavior.SetNull);
 
             b.HasOne(x => x.CreatedByUser)
                 .WithMany()

@@ -29,6 +29,10 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .IsRequired()
                 .HasMaxLength(200);
 
+            b.Property(x => x.AvatarUrl)
+            .HasColumnName("avatar_url")
+            .HasMaxLength(2048);
+
             b.Property(x => x.Description)
                 .HasColumnName("description")
                 .HasMaxLength(4000);

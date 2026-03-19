@@ -9,7 +9,6 @@ namespace PowerPulseRestAPI.Data.Models.ProjectModels
     {
         public long Id { get; set; }
         public long ProjectId { get; set; }
-        public long? WorkSessionId { get; set; }
         public string Url { get; set; } = null!;
         public string? Caption { get; set; }
         public AttachmentType AttachmentType { get; set; }
@@ -17,7 +16,6 @@ namespace PowerPulseRestAPI.Data.Models.ProjectModels
         public DateTimeOffset CreatedAt { get; set; }
 
         public Project Project { get; set; } = null!;
-        public WorkSession? WorkSession { get; set; }
         public User CreatedByUser { get; set; } = null!;
     }
 

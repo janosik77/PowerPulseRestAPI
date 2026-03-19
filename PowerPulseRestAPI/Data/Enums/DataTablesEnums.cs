@@ -14,9 +14,6 @@
     /// <summary>Status zadania</summary>
     public enum ProjectTaskStatus { NEW, IN_PROGRESS, BLOCKED, DONE }
 
-    /// <summary>Typ aktualizacji zadania</summary>
-    public enum TaskUpdateType { STATUS_CHANGE, COMMENT, ATTACHMENT, TIME_LOG }
-
 
 
     // =======================================================
@@ -204,7 +201,7 @@
 
 
     /// <summary>Typ adresu</summary>
-    public enum AddressType { MAIN, BILLING, SHIPPING, PROJECT_LOCATION, HOME, OFFICE, OTHER }
+    public enum AddressType { MAIN, BILLING, PROJECT_LOCATION, HOME, OFFICE, OTHER }
 
     /// <summary>Typ notatki</summary>
     public enum NoteType { GENERAL, ISSUE, PROGRESS, CUSTOMER, OTHER }

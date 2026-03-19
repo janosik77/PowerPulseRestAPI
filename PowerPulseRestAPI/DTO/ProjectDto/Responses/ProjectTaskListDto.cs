@@ -1,15 +1,13 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
 using PowerPulseRestAPI.Data.Models.EmployeeModels;
+using PowerPulseRestAPI.Data.Models.ProjectModels;
 using PowerPulseRestAPI.Data.Models.UsersModels;
 
-namespace PowerPulseRestAPI.Data.Models.ProjectModels
+namespace PowerPulseRestAPI.DTO.ProjectDto.Responses
 {
-
-
-    public class ProjectTask
+    public class ProjectTaskListDto
     {
         public long Id { get; set; }
-        public long ProjectId { get; set; }
         public string Title { get; set; } = null!;
         public string? Description { get; set; }
         public string? Url { get; set; } = null!;
@@ -18,16 +16,9 @@ namespace PowerPulseRestAPI.Data.Models.ProjectModels
         public ProjectTaskStatus Status { get; set; }
         public DateTimeOffset? DueAt { get; set; }
         public int? EstimatedHours { get; set; }
-        public long CreatedByUserId { get; set; }
-        public long? AssignedToEmployeeId { get; set; }
+        public long CreatedByUserName { get; set; }
+        public long? AssignedEmployeeName { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
-        public DateTimeOffset UpdatedAt { get; set; }
-
-        public Project Project { get; set; } = null!;
-        public User CreatedByUser { get; set; } = null!;
-        public Employee? AssignedToEmployee { get; set; }
-        public List<Notification> Notifications { get; set; } = new();
 
     }
-
 }

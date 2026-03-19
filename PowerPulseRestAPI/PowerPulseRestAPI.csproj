@@ -51,8 +51,6 @@
     <Folder Include="DTO\InvoiceDto\Responses\" />
     <Folder Include="DTO\MaterialDto\Requests\" />
     <Folder Include="DTO\MaterialDto\Responses\" />
-    <Folder Include="DTO\ProjectDto\Requests\" />
-    <Folder Include="DTO\ProjectDto\Responses\" />
     <Folder Include="DTO\StorageMaterialDto\Requests\" />
     <Folder Include="DTO\StorageMaterialDto\Responses\" />
     <Folder Include="DTO\ToolDto\Requests\" />
