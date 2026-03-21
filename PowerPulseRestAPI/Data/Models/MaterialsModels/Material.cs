@@ -1,4 +1,6 @@
 ﻿
+using PowerPulseRestAPI.Data.Models.InvoiceModels;
+
 namespace PowerPulseRestAPI.Data.Models.MaterialsModels
 {   
         public class Material
@@ -19,11 +21,8 @@ namespace PowerPulseRestAPI.Data.Models.MaterialsModels
             public DateTimeOffset UpdatedAt { get; set; }
 
             public MaterialCategory? Category { get; set; }
-
-            public MaterialStock? Stock { get; set; }
+            public List<InvoiceMaterialItem> InvoiceMaterialItems { get; set; } = new();
             public List<MaterialMovement> Movements { get; set; } = new();
-            public List<MaterialProjectBalance> ProjectBalances { get; set; } = new();
-            public List<MaterialProjectConsume> ProjectConsumes { get; set; } = new();
     }
 
 }

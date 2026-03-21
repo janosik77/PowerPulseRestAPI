@@ -24,7 +24,6 @@ public class VehicleAssignmentConfiguration : IEntityTypeConfiguration<VehicleAs
 
         b.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
 
-        // Relacje (dwukierunkowe)
         b.HasOne(x => x.Vehicle)
             .WithMany(v => v.Assignments)
             .HasForeignKey(x => x.VehicleId)
@@ -35,14 +34,15 @@ public class VehicleAssignmentConfiguration : IEntityTypeConfiguration<VehicleAs
             .HasForeignKey(x => x.EmployeeId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Indeksy
         b.HasIndex(x => x.VehicleId)
+            .IsUnique()
+            .HasFilter("[returned_at] IS NULL");
+        b.HasIndex(x => x.EmployeeId)
             .IsUnique()
             .HasFilter("[returned_at] IS NULL");
         b.HasIndex(x => x.EmployeeId);
         b.HasIndex(x => new { x.VehicleId, x.AssignedAt });
 
-        // Constraint: returned_at >= assigned_at
         b.HasCheckConstraint(
             "ck_vehicle_assignment_return_after_assign",
             "returned_at IS NULL OR returned_at >= assigned_at"

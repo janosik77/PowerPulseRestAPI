@@ -1,4 +1,5 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
+using PowerPulseRestAPI.Data.Models.EmployeeModels;
 
 namespace PowerPulseRestAPI.DTO.ProjectDto.Requests
 {
@@ -13,5 +14,6 @@ namespace PowerPulseRestAPI.DTO.ProjectDto.Requests
         public DateTimeOffset? EndDate { get; set; }
         public long CreatedByUserId { get; set; }
         public long CustomerId { get; set; }
+        public Employee? ResponsibleEmployee { get; set; }
     }
 }

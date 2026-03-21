@@ -16,22 +16,24 @@ namespace PowerPulseRestAPI.Data.Configurations.CustomerModelsCfg
             b.Property(x => x.Id)
                 .HasColumnName("id");
 
-            b.Property(x => x.CustomerType)
-                .HasColumnName("customer_type")
-                .HasConversion<string>()
-                .HasMaxLength(30)
-                .IsRequired();
-
             b.Property(x => x.Status)
                 .HasColumnName("status")
                 .HasConversion<string>()
                 .HasMaxLength(30)
                 .IsRequired();
 
-            b.Property(x => x.Name)
-                .HasColumnName("name")
+            b.Property(x => x.CompanyName)
+                .HasColumnName("company_name")
                 .IsRequired()
                 .HasMaxLength(300);
+
+            b.Property(x => x.PhoneNumber)
+                .HasColumnName("phone_number")
+                .HasMaxLength(50);
+
+            b.Property(x => x.AvatarUrl)
+            .HasColumnName("avatar_url")
+            .HasMaxLength(2048);
 
             b.Property(x => x.TaxId)
                 .HasColumnName("tax_id")
@@ -45,15 +47,13 @@ namespace PowerPulseRestAPI.Data.Configurations.CustomerModelsCfg
                 .HasColumnName("updated_at")
                 .IsRequired();
 
-            // INDEKSY
             b.HasIndex(x => x.Status);
-            b.HasIndex(x => x.CustomerType);
-            b.HasIndex(x => x.Name);
+            b.HasIndex(x => x.CompanyName);
             b.HasIndex(x => x.TaxId)
                 .IsUnique()
                 .HasFilter("[tax_id] IS NOT NULL");
 
-            b.HasCheckConstraint("ck_customer_name_not_empty", "name <> ''");
+            b.HasCheckConstraint("ck_customer_company_name_not_empty", "company_name <> ''");
             b.HasCheckConstraint("ck_customer_updated_at", "updated_at >= created_at");
         }
     }

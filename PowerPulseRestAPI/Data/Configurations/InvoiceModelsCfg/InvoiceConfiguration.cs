@@ -38,8 +38,6 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         b.Property(x => x.Note).HasColumnName("note").HasMaxLength(2000);
 
         b.Property(x => x.CreatedByUserId).HasColumnName("created_by_user_id").IsRequired();
-        b.Property(x => x.IssuedByUserId).HasColumnName("issued_by_user_id");
-        b.Property(x => x.IssuedAt).HasColumnName("issued_at");
 
         b.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
         b.Property(x => x.UpdatedAt).HasColumnName("updated_at").IsRequired();
@@ -64,18 +62,12 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasForeignKey(x => x.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        b.HasOne(x => x.IssuedByUser)
-            .WithMany(u => u.InvoicesIssued)
-            .HasForeignKey(x => x.IssuedByUserId)
-            .OnDelete(DeleteBehavior.SetNull);
-
         b.HasIndex(x => x.InvoiceNumber).IsUnique();
         b.HasIndex(x => x.Status);
         b.HasIndex(x => x.CustomerId);
         b.HasIndex(x => x.ProjectId);
         b.HasIndex(x => x.IssueDate);
         b.HasIndex(x => x.CreatedByUserId);
-        b.HasIndex(x => x.IssuedByUserId);
         b.HasIndex(x => new { x.CustomerId, x.IssueDate });
 
         // constrainty
@@ -84,9 +76,5 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         b.HasCheckConstraint("ck_invoice_total_match", "total_amount = subtotal_amount + tax_amount");
         b.HasCheckConstraint("ck_invoice_currency_not_empty", "currency <> ''");
         b.HasCheckConstraint("ck_invoice_number_not_empty", "invoice_number <> ''");
-        b.HasCheckConstraint(
-            "ck_invoice_issue_consistency",
-            "(issued_at IS NULL AND issued_by_user_id IS NULL) OR (issued_at IS NOT NULL AND issued_by_user_id IS NOT NULL)"
-        );
     }
 }

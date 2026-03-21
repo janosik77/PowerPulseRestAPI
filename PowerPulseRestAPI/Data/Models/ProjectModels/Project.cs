@@ -37,13 +37,11 @@ namespace PowerPulseRestAPI.Data.Models.ProjectModels
         public List<ProjectAttachment> Attachments { get; set; } = new();
         public List<WorkSession> WorkSessions { get; set; } = new();
         public List<MaterialMovement> MaterialMovements { get; set; } = new();
-        public List<MaterialProjectBalance> MaterialBalances { get; set; } = new();
         public List<ToolAssignment> ToolAssignments { get; set; } = new();
         public List<Notification> Notifications { get; set; } = new();
         public List<StockRequest> StockRequests { get; set; } = new();
         public List<Invoice> Invoices { get; set; } = new();
         public List<BillingRate> BillingRates { get; set; } = new();
-        public List<MaterialProjectConsume> MaterialProjectConsumes { get; set; } = new();
     }
 
 }

@@ -65,6 +65,9 @@ namespace PowerPulseRestAPI.Data.Configurations.EmployeeModelsCfg
 
             b.HasIndex(x => x.PersonId).IsUnique();
             b.HasIndex(x => x.Status);
+            b.HasIndex(x => x.EmployeeId)
+                .IsUnique()
+                .HasFilter("[returned_at] IS NULL");
 
             b.HasOne(x => x.Person)
                 .WithOne(p => p.Employee)

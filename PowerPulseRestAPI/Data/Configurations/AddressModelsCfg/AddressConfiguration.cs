@@ -47,8 +47,8 @@ public class AddressConfiguration : IEntityTypeConfiguration<Address>
             .HasMaxLength(30)
             .IsRequired();
 
-        b.Property(x => x.EntityId)
-            .HasColumnName("entity_id")
+        b.Property(x => x.AddressEntityId)
+            .HasColumnName("address_entity_id")
             .IsRequired();
 
         b.Property(x => x.AddressType)
@@ -68,11 +68,11 @@ public class AddressConfiguration : IEntityTypeConfiguration<Address>
             .HasColumnName("updated_at")
             .IsRequired();
 
-        b.HasIndex(x => new { x.EntityType, x.EntityId, x.AddressType })
+        b.HasIndex(x => new { x.EntityType, x.AddressEntityId, x.AddressType })
          .IsUnique()
          .HasFilter("address_type = 'MAIN'");
         b.HasIndex(x => new { x.Country, x.PostalCode, x.City });
-        b.HasIndex(x => new { x.EntityType, x.EntityId });
+        b.HasIndex(x => new { x.EntityType, x.AddressEntityId });
         b.HasIndex(x => new { x.Country, x.PostalCode, x.City });
 
     }

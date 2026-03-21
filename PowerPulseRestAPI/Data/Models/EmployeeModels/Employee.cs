@@ -30,8 +30,6 @@ namespace PowerPulseRestAPI.Data.Models.EmployeeModels
         public List<ToolAssignment> ToolAssignments { get; set; } = new();
         public List<VehicleAssignment> VehicleAssignments { get; set; } = new();
 
-
-
     }
 
 }

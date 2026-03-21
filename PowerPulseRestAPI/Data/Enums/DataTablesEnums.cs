@@ -15,7 +15,6 @@
     public enum ProjectTaskStatus { NEW, IN_PROGRESS, BLOCKED, DONE }
 
 
-
     // =======================================================
     // WORK SESSIONS / TIME TRACKING
     // =======================================================
@@ -28,18 +27,11 @@
     // CUSTOMERS & RELATIONSHIPS
     // =======================================================
 
-    /// <summary>Typ klienta</summary>
-    public enum CustomerType { INDIVIDUAL, COMPANY }
-
     /// <summary>Status klienta</summary>
-    public enum CustomerStatus { LEAD, ACTIVE, INACTIVE }
+    public enum CustomerStatus {NOT_ASSIGNET = 0, LEAD = 1 , ACTIVE = 2, INACTIVE= 3 }
 
     /// <summary>Relacja klienta z projektem</summary>
     public enum CustomerContactRole { OWNER, CO_OWNER, MANAGER, OTHER }
-
-
-
-
 
     // =======================================================
     // MATERIALS & LOGISTICS
@@ -51,7 +43,9 @@
         PURCHASE_RECEIPT = 1, // zakup / przyjęcie do magazynu
         ISSUE_TO_PROJECT = 2, // wydanie z magazynu na projekt
         RETURN_FROM_PROJECT = 3, // zwrot z projektu do magazynu
-        WAREHOUSE_ADJUSTMENT = 4 // korekta magazynu
+        WAREHOUSE_ADJUSTMENT_INCREASE = 4,
+        WAREHOUSE_ADJUSTMENT_DECREASE = 5,
+        PROJECT_CONSUME = 6
     }
     public enum MaterialTransferEndpointType
     {
@@ -72,7 +66,7 @@
     public enum ToolIssueType { DAMAGE, LOST, OTHER }
 
     /// <summary>Uniwersalny status obiektu</summary>
-    public enum GenericStatus { NEW, IN_PROGRESS, RESOLVED, REJECTED }
+    public enum GenericStatus {OPEN, IN_PROGRESS, RESOLVED}
 
 
     // =======================================================
@@ -84,7 +78,6 @@
 
     /// <summary>Status zamówienia zakupu</summary>
     //public enum PurchaseStatus { NEW, APPROVED, REJECTED, ORDERED, DELIVERED }
-
 
 
     // =======================================================
@@ -104,7 +97,6 @@
     public enum MileageSourceType { MANUAL, SERVICE_ORDER, OTHER }
 
 
-
     // =======================================================
     // NOTIFICATIONS & ACTIVITY LOG
     // =======================================================
@@ -114,9 +106,6 @@
 
     /// <summary>Ważność powiadomienia</summary>
     public enum NotificationSeverity { INFO, WARNING, CRITICAL }
-
-    /// <summary>Typ akcji w logu aktywności</summary>
-    public enum ActivityActionType { CREATED, UPDATED, STATUS_CHANGED, ASSIGNED, CONSUMED, COMMENTED, ATTACHED, OTHER }
 
     public enum TextTemplateChannel
     {
@@ -142,7 +131,6 @@
 
     /// <summary>Typ załącznika</summary>
     public enum AttachmentType { PHOTO, PDF, FILE, OTHER }
-
 
 
     // =======================================================
@@ -174,39 +162,34 @@
     // =======================================================
 
     /// <summary>Status faktury</summary>
-    public enum InvoiceStatus { DRAFT, ISSUED, PAID, PARTIAL, CANCELED }
-
-    /// <summary>Typ pozycji faktury</summary>
-    public enum InvoiceItemType { LABOR, MATERIAL }
-
-
-
-
+    public enum InvoiceStatus { ISSUED, PAID, CANCELED }
+    public enum InvoiceFormItemType
+    {
+        Labor = 1,
+        Material = 2
+    }
 
     // =======================================================
     // IDENTIFIERS & HR
     // =======================================================
 
-    /// <summary>Typ identyfikatora osoby</summary>
-    public enum IdentifierType { PESEL, SSN, PASSPORT }
-
     /// <summary>Status pracownika</summary>
     public enum EmployeeStatus { ACTIVE, INACTIVE, TERMINATED }
-
-
 
     // =======================================================
     // GENERIC DOMAIN TYPES
     // =======================================================
 
-
     /// <summary>Typ adresu</summary>
-    public enum AddressType { MAIN, BILLING, PROJECT_LOCATION, HOME, OFFICE, OTHER }
+    public enum AddressType { MAIN = 0, BILLING = 1, PROJECT_LOCATION = 2, HOME =3 , OFFICE = 4, OTHER = 5}
 
     /// <summary>Typ notatki</summary>
     public enum NoteType { GENERAL, ISSUE, PROGRESS, CUSTOMER, OTHER }
 
-    /// <summary>Typ notatki klienta</summary>
-    public enum CustomerNoteType { GENERAL, CALL, EMAIL, MEETING, COMPLAINT, OTHER }
+    /// <summary>
+    /// Typ adresu
+    /// </summary>
+    public enum AddressEntityType {UNKNOWN = 0, CUSTOMER = 1, PERSON = 2, PROJECT = 3 }
+
 
 }

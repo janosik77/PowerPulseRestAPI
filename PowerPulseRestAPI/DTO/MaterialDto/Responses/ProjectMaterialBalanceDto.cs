@@ -1,0 +1,14 @@
+﻿namespace PowerPulseRestAPI.DTO.MaterialDto.Responses
+{
+    public class ProjectMaterialBalanceDto
+    {
+        public long ProjectId { get; set; }
+        public long MaterialId { get; set; }
+        public string MaterialName { get; set; } = null!;
+        public string MaterialSku { get; set; } = null!;
+        public string? Manufacturer { get; set; }
+        public string Url { get; set; } = null!;
+        public decimal Quantity { get; set; }
+        public string Unit { get; set; } = null!;
+    }
+}
