@@ -4,7 +4,7 @@ services:
     container_name: powerpulse-db
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "Str0ng!Passw0rd2026"
+      SA_PASSWORD: "${SQL_SA_PASSWORD}"
     ports:
       - "1433:1433"
     volumes:
@@ -12,14 +12,19 @@ services:
 
   api:
     build:
-      context: ../PowerPulseRestAPI/PowerPulseRestAPI
+      context: ./PowerPulseRestAPI
       dockerfile: Dockerfile
     image: powerpulse-api:dev
     container_name: powerpulse-api
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ASPNETCORE_ENVIRONMENT: "Docker"
-      ConnectionStrings__PowerPulseContext: "Server=db,1433;Database=PowerPulseContext-2026;User Id=sa;Password=Str0ng!Passw0rd2026;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      ConnectionStrings__PowerPulseContext: "Server=db,1433;Database=PowerPulseContext-2026;User Id=sa;Password=${SQL_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      Jwt__Key: "${JWT_KEY}"
+      Jwt__Issuer: "PowerPulseAPI"
+      Jwt__Audience: "PowerPulseFrontend"
+      Jwt__ExpiresMinutes: "120"
+      Encryption__Key: "${ENCRYPTION_KEY}"
     ports:
       - "8080:8080"
     depends_on:
