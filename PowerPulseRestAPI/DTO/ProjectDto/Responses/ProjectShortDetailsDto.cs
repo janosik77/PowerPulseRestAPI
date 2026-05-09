@@ -11,8 +11,8 @@ namespace PowerPulseRestAPI.DTO.ProjectDto.Responses
         public string? Description { get; set; }
         public string Address { get; set; } = null!;
         public ProjectStatus Status { get; set; }
-        public DateTimeOffset StartDate { get; set; }
-        public DateTimeOffset? EndDate { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }
         public string CustomerName { get; set; } = null!;
         public long? ResponsibleEmployeeId { get; set; }
 

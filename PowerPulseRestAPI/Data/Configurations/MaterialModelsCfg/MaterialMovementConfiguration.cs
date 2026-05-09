@@ -58,6 +58,12 @@ namespace PowerPulseRestAPI.Data.Configurations.MaterialModelsCfg
                 .HasColumnName("created_at")
                 .IsRequired();
 
+            b.Property(x => x.InvoiceId)
+                .HasColumnName("invoice_id");
+
+            b.Property(x => x.InvoicedAt)
+                .HasColumnName("invoiced_at");
+
             b.HasOne(x => x.Material)
                 .WithMany(x => x.Movements)
                 .HasForeignKey(x => x.MaterialId)
@@ -73,6 +79,11 @@ namespace PowerPulseRestAPI.Data.Configurations.MaterialModelsCfg
                 .HasForeignKey(x => x.CreatedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            b.HasOne(x => x.Invoice)
+                .WithMany(i => i.MaterialMovements)
+                .HasForeignKey(x => x.InvoiceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             b.HasIndex(x => x.MaterialId);
             b.HasIndex(x => x.ProjectId);
             b.HasIndex(x => x.OperationId);
@@ -81,29 +92,14 @@ namespace PowerPulseRestAPI.Data.Configurations.MaterialModelsCfg
             b.HasIndex(x => x.MovementType);
             b.HasIndex(x => new { x.MaterialId, x.ProjectId });
             b.HasIndex(x => new { x.OperationId, x.MaterialId });
+            b.HasIndex(x => x.InvoiceId);
+            b.HasIndex(x => x.InvoicedAt);
 
             b.HasCheckConstraint("ck_material_movement_qty_positive", "quantity > 0");
             b.HasCheckConstraint("ck_material_movement_unit_not_empty", "unit <> ''");
+            b.HasCheckConstraint("ck_material_movement_invoiced_at_requires_invoice",
+                "invoice_id IS NOT NULL OR invoiced_at IS NULL");
 
-            b.HasCheckConstraint(
-                "ck_material_movement_purchase_receipt",
-                "movement_type <> 'PURCHASE_RECEIPT' OR (storage_location_id IS NOT NULL AND project_id IS NULL)"
-            );
-
-            b.HasCheckConstraint(
-                "ck_material_movement_issue_to_project",
-                "movement_type <> 'ISSUE_TO_PROJECT' OR (storage_location_id IS NOT NULL AND project_id IS NOT NULL)"
-            );
-
-            b.HasCheckConstraint(
-                "ck_material_movement_return_from_project",
-                "movement_type <> 'RETURN_FROM_PROJECT' OR (storage_location_id IS NOT NULL AND project_id IS NOT NULL)"
-            );
-
-            b.HasCheckConstraint(
-                "ck_material_movement_warehouse_adjustment",
-                "movement_type <> 'WAREHOUSE_ADJUSTMENT' OR (storage_location_id IS NOT NULL AND project_id IS NULL)"
-            );
         }
     }
 }

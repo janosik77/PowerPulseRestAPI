@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PowerPulseRestAPI.Data.Models.EmployeeModels;
 
 namespace PowerPulseRestAPI.Data.Configurations.EmployeeModelsCfg
@@ -10,18 +10,15 @@ namespace PowerPulseRestAPI.Data.Configurations.EmployeeModelsCfg
         {
             b.ToTable("employees");
 
-            // PK
             b.HasKey(x => x.Id);
 
             b.Property(x => x.Id)
                 .HasColumnName("id");
 
-            // FK -> person (1:1)
             b.Property(x => x.PersonId)
                 .HasColumnName("person_id")
                 .IsRequired();
 
-            // DateOnly -> date
             b.Property(x => x.HireDate)
                 .HasColumnName("hire_date")
                 .HasColumnType("date")
@@ -46,8 +43,30 @@ namespace PowerPulseRestAPI.Data.Configurations.EmployeeModelsCfg
                 .HasMaxLength(30)
                 .IsRequired();
 
+            b.Property(x => x.HourlyWage)
+                .HasColumnName("hourly_wage")
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            b.Property(x => x.Currency)
+                .HasColumnName("currency")
+                .HasMaxLength(10)
+                .IsRequired();
+
+            b.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .IsRequired();
+
+            b.Property(x => x.UpdatedAt)
+                .HasColumnName("updated_at")
+                .IsRequired();
+
             b.Property(x => x.RemainingVacationDays)
                 .HasColumnName("remaining_vacation_days")
+                .IsRequired();
+
+            b.Property(x => x.VacationDaysPerYear)
+                .HasColumnName("vacation_days_per_year")
                 .IsRequired();
 
             b.Property(x => x.AccountEncrypted)
@@ -59,25 +78,30 @@ namespace PowerPulseRestAPI.Data.Configurations.EmployeeModelsCfg
                 .HasColumnName("account_last4")
                 .HasMaxLength(10);
 
-            b.Property(x => x.VacationDaysPerYear)
-                .HasColumnName("vacation_days_per_year")
-                .IsRequired();
+            b.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .IsRequired()
+                .HasDefaultValue(false);
 
             b.HasIndex(x => x.PersonId).IsUnique();
             b.HasIndex(x => x.Status);
-            b.HasIndex(x => x.EmployeeId)
-                .IsUnique()
-                .HasFilter("[returned_at] IS NULL");
 
             b.HasOne(x => x.Person)
                 .WithOne(p => p.Employee)
                 .HasForeignKey<Employee>(x => x.PersonId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasCheckConstraint("ck_employee_vacation_nonneg", "remaining_vacation_days >= 0 AND vacation_days_per_year >= 0");
-            b.HasCheckConstraint("ck_employee_terminated_after_hire", "terminated_at IS NULL OR terminated_at >= hire_date");
             b.HasCheckConstraint(
-                "ck_employee_job_title_not_empty", "job_title <> ''");
+                "ck_employee_vacation_nonneg",
+                "remaining_vacation_days >= 0 AND vacation_days_per_year >= 0");
+
+            b.HasCheckConstraint(
+                "ck_employee_terminated_after_hire",
+                "terminated_at IS NULL OR terminated_at >= hire_date");
+
+            b.HasCheckConstraint(
+                "ck_employee_job_title_not_empty",
+                "job_title <> ''");
         }
     }
 }

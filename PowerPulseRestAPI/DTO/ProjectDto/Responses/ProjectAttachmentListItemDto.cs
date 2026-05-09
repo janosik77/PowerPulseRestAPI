@@ -9,7 +9,7 @@ namespace PowerPulseRestAPI.DTO.ProjectDto.Responses
         public string Url { get; set; } = null!;
         public string? Caption { get; set; }
         public AttachmentType AttachmentType { get; set; }
-        public long CreatedByUserId { get; set; }
+        public long CreatedByEmployeeId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
 }

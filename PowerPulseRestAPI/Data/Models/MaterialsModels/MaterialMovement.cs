@@ -1,4 +1,5 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
+using PowerPulseRestAPI.Data.Models.InvoiceModels;
 using PowerPulseRestAPI.Data.Models.ProjectModels;
 using PowerPulseRestAPI.Data.Models.UsersModels;
 
@@ -17,10 +18,14 @@ namespace PowerPulseRestAPI.Data.Models.MaterialsModels
             public string Unit { get; set; } = null!;                   
             public string? Note { get; set; }
             public DateTimeOffset OccurredAt { get; set; }
+            public long? InvoiceId { get; set; }
+            public DateTimeOffset? InvoicedAt { get; set; }
 
             public long CreatedByUserId { get; set; }
             public DateTimeOffset CreatedAt { get; set; }
 
+
+            public Invoice? Invoice { get; set; }
             public Material Material { get; set; } = null!;           
             public Project? Project { get; set; }
             public User CreatedByUser { get; set; } = null!;

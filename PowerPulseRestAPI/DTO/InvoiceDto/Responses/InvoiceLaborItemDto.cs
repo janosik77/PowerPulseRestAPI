@@ -7,7 +7,6 @@
         public string Unit { get; set; } = null!;
         public decimal UnitPrice { get; set; }
         public decimal TaxRate { get; set; }
-
         public decimal LineSubtotal { get; set; }
         public decimal LineTax { get; set; }
         public decimal LineTotal { get; set; }

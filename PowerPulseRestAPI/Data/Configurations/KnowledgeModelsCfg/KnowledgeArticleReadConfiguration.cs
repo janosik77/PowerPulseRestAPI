@@ -28,7 +28,7 @@ public class KnowledgeArticleReadConfiguration : IEntityTypeConfiguration<Knowle
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        b.HasIndex(x => new { x.ArticleId, x.UserId }).IsUnique();
+        b.HasIndex(x => x.ArticleId);
         b.HasIndex(x => x.UserId);
         b.HasIndex(x => x.ReadAt);
     }

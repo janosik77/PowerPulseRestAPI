@@ -38,7 +38,6 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
 
             b.Property(x => x.Priority)
                 .HasColumnName("priority")
-                .HasConversion<string>()
                 .HasMaxLength(30)
                 .IsRequired();
 
@@ -54,8 +53,8 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
             b.Property(x => x.EstimatedHours)
                 .HasColumnName("estimated_minutes");
 
-            b.Property(x => x.CreatedByUserId)
-                .HasColumnName("created_by_user_id")
+            b.Property(x => x.CreatedByEmployeeId)
+                .HasColumnName("created_by_employee_id")
                 .IsRequired();
 
             b.Property(x => x.AssignedToEmployeeId)
@@ -74,15 +73,15 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            b.HasOne(x => x.CreatedByUser)
-                .WithMany()
-                .HasForeignKey(x => x.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             b.HasOne(x => x.AssignedToEmployee)
                 .WithMany(e => e.AssignedTasks)
                 .HasForeignKey(x => x.AssignedToEmployeeId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.CreatedByEmployee)
+                .WithMany()
+                .HasForeignKey(x => x.CreatedByEmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             b.HasIndex(x => x.ProjectId);
             b.HasIndex(x => x.Status);
@@ -96,6 +95,10 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
             );
 
             b.HasCheckConstraint("ck_project_task_title_not_empty", "title <> ''");
+            b.HasCheckConstraint(
+                "ck_project_task_priority",
+                "priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')"
+);
         }
     }
 }

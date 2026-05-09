@@ -51,8 +51,12 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .HasColumnName("end_date")
                 .HasColumnType("date");
 
-            b.Property(x => x.CreatedByUserId)
-                .HasColumnName("created_by_user_id")
+            b.Property(x => x.AddressId)
+                .HasColumnName("address_id")
+                .IsRequired();
+
+            b.Property(x => x.CreatedByEmployeeId)
+                .HasColumnName("created_by_employee_id")
                 .IsRequired();
 
             b.Property(x => x.ResponsibleEmployeeId)
@@ -66,14 +70,19 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .HasColumnName("updated_at")
                 .IsRequired();
 
+            b.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .IsRequired()
+                .HasDefaultValue(false);
+
             b.HasOne(x => x.Customer)
-                .WithMany()
+                .WithMany(c => c.Projects)
                 .HasForeignKey(x => x.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne(x => x.CreatedByUser)
+            b.HasOne(x => x.CreatedByEmployee)
                 .WithMany()
-                .HasForeignKey(x => x.CreatedByUserId)
+                .HasForeignKey(x => x.CreatedByEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             b.HasOne(x => x.ResponsibleEmployee)
@@ -81,15 +90,24 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .HasForeignKey(x => x.ResponsibleEmployeeId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            b.HasOne(x => x.Address)
+                .WithOne()
+                .HasForeignKey<Project>(x => x.AddressId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             b.HasIndex(x => x.Code)
+                .IsUnique();
+            b.HasIndex(x => x.Name)
                 .IsUnique();
 
             b.HasIndex(x => x.CustomerId);
             b.HasIndex(x => x.Status);
-            b.HasIndex(x => x.CreatedByUserId);
+            b.HasIndex(x => x.CreatedByEmployeeId);
             b.HasIndex(x => x.ResponsibleEmployeeId);
             b.HasIndex(x => x.StartDate);
             b.HasIndex(x => x.EndDate);
+            b.HasIndex(x => x.Name);
+            b.HasIndex(x => x.AddressId).IsUnique();
 
             b.HasCheckConstraint(
                 "ck_project_dates",

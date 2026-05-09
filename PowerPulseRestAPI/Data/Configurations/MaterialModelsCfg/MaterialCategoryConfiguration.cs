@@ -27,6 +27,11 @@ namespace PowerPulseRestAPI.Data.Configurations.MaterialModelsCfg
                 .HasColumnName("created_at")
                 .IsRequired();
 
+            b.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .IsRequired()
+                .HasDefaultValue(false);
+
             b.HasMany(x => x.Materials)
                 .WithOne(x => x.Category)
                 .HasForeignKey(x => x.CategoryId)

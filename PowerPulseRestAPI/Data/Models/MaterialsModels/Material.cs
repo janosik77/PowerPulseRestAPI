@@ -6,7 +6,6 @@ namespace PowerPulseRestAPI.Data.Models.MaterialsModels
         public class Material
         {
             public long Id { get; set; }
-            public string Sku { get; set; } = null!;
             public string Name { get; set; } = null!;
             public string? Description { get; set; }
             public long CategoryId { get; set; }
@@ -19,6 +18,7 @@ namespace PowerPulseRestAPI.Data.Models.MaterialsModels
             public string Currency { get; set; } = null!;
             public DateTimeOffset CreatedAt { get; set; }
             public DateTimeOffset UpdatedAt { get; set; }
+            public bool IsDeleted { get; set; }
 
             public MaterialCategory? Category { get; set; }
             public List<InvoiceMaterialItem> InvoiceMaterialItems { get; set; } = new();

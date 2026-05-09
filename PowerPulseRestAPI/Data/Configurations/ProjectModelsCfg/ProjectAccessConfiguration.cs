@@ -45,16 +45,8 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
             b.HasIndex(x => x.ProjectId);
             b.HasIndex(x => x.EmployeeId);
 
-            b.HasIndex(x => new { x.ProjectId, x.EmployeeId });
+            b.HasIndex(x => new { x.ProjectId, x.EmployeeId }).IsUnique();
 
-            // (opcjonalnie) jeśli często filtrujesz tylko aktywne dostępy
-            b.HasIndex(x => new { x.ProjectId, x.IsEnabled }).IsUnique();
-
-            // CONSTRAINTY
-            b.HasCheckConstraint(
-                "ck_project_access_dates",
-                "valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from"
-            );
         }
     }
 }

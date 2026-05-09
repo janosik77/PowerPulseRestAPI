@@ -1,5 +1,4 @@
-﻿using PowerPulseRestAPI.Data.Enums;
-using PowerPulseRestAPI.Data.Models.EmployeeModels;
+﻿using PowerPulseRestAPI.Data.Models.EmployeeModels;
 using PowerPulseRestAPI.Data.Models.UsersModels;
 
 

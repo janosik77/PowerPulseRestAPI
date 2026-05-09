@@ -48,7 +48,5 @@ public class VehicleAssignmentConfiguration : IEntityTypeConfiguration<VehicleAs
             "returned_at IS NULL OR returned_at >= assigned_at"
         );
 
-        // Opcjonalnie: jedno aktywne przypisanie na auto (partial unique index zależny od DB)
-        // b.HasIndex(x => x.VehicleId).IsUnique().HasFilter("returned_at IS NULL");
     }
 }

@@ -12,10 +12,6 @@ public class ToolConfiguration : IEntityTypeConfiguration<Tool>
 
         b.Property(x => x.Id).HasColumnName("id");
 
-        b.Property(x => x.Sku)
-            .HasColumnName("sku")
-            .HasMaxLength(80);
-
         b.Property(x => x.Name)
             .HasColumnName("name")
             .IsRequired()
@@ -26,8 +22,7 @@ public class ToolConfiguration : IEntityTypeConfiguration<Tool>
             .HasMaxLength(4000);
 
         b.Property(x => x.CategoryId)
-            .HasColumnName("category_id")
-            .IsRequired();
+            .HasColumnName("category_id");
 
         b.Property(x => x.Manufacturer)
             .HasColumnName("manufacturer")
@@ -37,8 +32,8 @@ public class ToolConfiguration : IEntityTypeConfiguration<Tool>
             .HasColumnName("model")
             .HasMaxLength(200);
 
-        b.Property(x => x.Barcode)
-            .HasColumnName("barcode")
+        b.Property(x => x.SerialNumber)
+            .HasColumnName("serial_number")
             .HasMaxLength(100);
 
         b.Property(x => x.IsActive)
@@ -58,23 +53,38 @@ public class ToolConfiguration : IEntityTypeConfiguration<Tool>
             .HasColumnName("updated_at")
             .IsRequired();
 
-        // relacja do kategorii (dwukierunkowo)
+        b.Property(x => x.Condition)
+            .HasColumnName("condition")
+            .HasConversion<string>()
+            .HasMaxLength(30)
+            .IsRequired();
+
+        b.Property(x => x.Status)
+            .HasColumnName("status")
+            .HasConversion<string>()
+            .HasMaxLength(30)
+            .IsRequired();
+
+        b.Property(x => x.PurchaseDate)
+            .HasColumnName("purchase_date")
+            .HasColumnType("date");
+
+        b.Property(x => x.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired()
+            .HasDefaultValue(false);
+
         b.HasOne(x => x.Category)
             .WithMany(c => c.Tools)
             .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        // indeksy
         b.HasIndex(x => x.CategoryId);
         b.HasIndex(x => x.Name);
         b.HasIndex(x => x.IsActive);
 
-        // unikalności (opcjonalnie biznesowo)
-        b.HasIndex(x => x.Sku).IsUnique();
-        b.HasIndex(x => x.Barcode).IsUnique();
+        b.HasIndex(x => x.SerialNumber).IsUnique();
 
         b.HasCheckConstraint("ck_tool_name_not_empty", "name <> ''");
-        b.HasCheckConstraint("ck_tool_sku_not_empty", "sku IS NULL OR sku <> ''");
-        b.HasCheckConstraint("ck_tool_barcode_not_empty", "barcode IS NULL OR barcode <> ''");
     }
 }

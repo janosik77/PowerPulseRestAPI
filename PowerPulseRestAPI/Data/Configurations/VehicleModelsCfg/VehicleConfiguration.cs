@@ -12,11 +12,6 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
 
         b.Property(x => x.Id).HasColumnName("id");
 
-        b.Property(x => x.Name)
-            .HasColumnName("name")
-            .IsRequired()
-            .HasMaxLength(200);
-
         b.Property(x => x.PlateNumber)
             .HasColumnName("plate_number")
             .IsRequired()
@@ -52,6 +47,11 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .HasMaxLength(30)
             .IsRequired();
 
+        b.Property(x => x.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired()
+            .HasDefaultValue(false);
+
         b.Property(x => x.CurrentMileage)
             .HasColumnName("current_mileage");
 
@@ -65,16 +65,12 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         b.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
         b.Property(x => x.UpdatedAt).HasColumnName("updated_at").IsRequired();
 
-        // Indeksy / unikalności
         b.HasIndex(x => x.PlateNumber).IsUnique();
         b.HasIndex(x => x.Vin)
             .IsUnique()
             .HasFilter("[vin] IS NOT NULL");
         b.HasIndex(x => x.Status);
 
-        // Constrainty
-        b.HasCheckConstraint("ck_vehicle_year_range", "year IS NULL OR (year >= 1900 AND year <= 2100)");
-        b.HasCheckConstraint("ck_vehicle_mileage_nonneg", "current_mileage IS NULL OR current_mileage >= 0");
         b.HasCheckConstraint("ck_vehicle_last_service_mileage_nonneg", "last_service_mileage IS NULL OR last_service_mileage >= 0");
     }
 }

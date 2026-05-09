@@ -28,6 +28,11 @@ public class ToolCategoryConfiguration : IEntityTypeConfiguration<ToolCategory>
             .HasColumnName("created_at")
             .IsRequired();
 
+        b.Property(x => x.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired()
+            .HasDefaultValue(false);
+
         b.HasOne(x => x.Parent)
             .WithMany(x => x.Children)
             .HasForeignKey(x => x.ParentId)

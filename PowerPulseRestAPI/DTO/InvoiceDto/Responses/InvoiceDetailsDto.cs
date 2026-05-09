@@ -8,8 +8,8 @@ namespace PowerPulseRestAPI.DTO.InvoiceDto.Responses
         public string InvoiceNumber { get; set; } = null!;
         public InvoiceStatus Status { get; set; }
 
-        public long? ProjectId { get; set; }
-        public string? ProjectName { get; set; }
+        public long ProjectId { get; set; }
+        public string ProjectName { get; set; } = null!;
 
         public long CustomerId { get; set; }
         public string CustomerName { get; set; } = null!;
@@ -26,6 +26,9 @@ namespace PowerPulseRestAPI.DTO.InvoiceDto.Responses
 
         public string? CustomerTaxIdSnapshot { get; set; }
         public string? BillingAddressSnapshot { get; set; }
+
+        public DateOnly BillingPeriodStart { get; set; }
+        public DateOnly BillingPeriodEnd { get; set; }
 
         public string? CreatedByUserName { get; set; }
 

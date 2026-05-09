@@ -1,5 +1,5 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
-using PowerPulseRestAPI.Data.Models.UsersModels;
+using PowerPulseRestAPI.Data.Models.EmployeeModels;
 
 namespace PowerPulseRestAPI.Data.Models.ProjectModels
 {
@@ -12,11 +12,11 @@ namespace PowerPulseRestAPI.Data.Models.ProjectModels
         public string Url { get; set; } = null!;
         public string? Caption { get; set; }
         public AttachmentType AttachmentType { get; set; }
-        public long CreatedByUserId { get; set; }
+        public long CreatedByEmployeeId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
 
         public Project Project { get; set; } = null!;
-        public User CreatedByUser { get; set; } = null!;
+        public Employee CreatedByEmployee { get; set; } = null!;
     }
 
 }

@@ -31,6 +31,12 @@ namespace PowerPulseRestAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("AddressType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("address_type");
+
                     b.Property<string>("ApartmentNumber")
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
@@ -63,16 +69,6 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("full_text");
 
-                    b.Property<decimal?>("Latitude")
-                        .HasPrecision(9, 6)
-                        .HasColumnType("decimal(9,6)")
-                        .HasColumnName("latitude");
-
-                    b.Property<decimal?>("Longitude")
-                        .HasPrecision(9, 6)
-                        .HasColumnType("decimal(9,6)")
-                        .HasColumnName("longitude");
-
                     b.Property<string>("PostalCode")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -91,67 +87,21 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AddressType");
+
                     b.HasIndex("Country", "PostalCode", "City");
 
                     b.ToTable("addresses", null, t =>
                         {
-                            t.HasCheckConstraint("ck_address_lat_range", "latitude IS NULL OR (latitude >= -90 AND latitude <= 90)");
+                            t.HasCheckConstraint("ck_address_building_number_not_empty", "building_number <> ''");
 
-                            t.HasCheckConstraint("ck_address_lon_range", "longitude IS NULL OR (longitude >= -180 AND longitude <= 180)");
-                        });
-                });
+                            t.HasCheckConstraint("ck_address_city_not_empty", "city <> ''");
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.AddressModels.EntityAddress", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                            t.HasCheckConstraint("ck_address_country_not_empty", "country <> ''");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                            t.HasCheckConstraint("ck_address_street_not_empty", "street <> ''");
 
-                    b.Property<long>("AddressId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("address_id");
-
-                    b.Property<string>("AddressType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("address_type");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("EntityId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("entity_id");
-
-                    b.Property<string>("EntityType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("entity_type");
-
-                    b.Property<bool>("IsPrimary")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_primary");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("EntityType", "EntityId");
-
-                    b.HasIndex("EntityType", "EntityId", "AddressType");
-
-                    b.HasIndex("AddressId", "EntityType", "EntityId", "AddressType")
-                        .IsUnique();
-
-                    b.ToTable("entity_addresses", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_entity_address_entity_id_positive", "entity_id > 0");
+                            t.HasCheckConstraint("ck_address_updated_at", "updated_at >= created_at");
                         });
                 });
 
@@ -164,36 +114,39 @@ namespace PowerPulseRestAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long>("AddressId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("address_id");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)")
+                        .HasColumnName("avatar_url");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasColumnName("company_name");
+
+                    b.Property<long>("ContactPersonId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("contact_person_id");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("CustomerType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("customer_type");
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(320)
-                        .HasColumnType("nvarchar(320)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)")
-                        .HasColumnName("note");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("phone");
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("phone_number");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -202,6 +155,7 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnName("status");
 
                     b.Property<string>("TaxId")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("tax_id");
@@ -212,202 +166,26 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerType");
+                    b.HasIndex("AddressId");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("CompanyName");
+
+                    b.HasIndex("ContactPersonId");
 
                     b.HasIndex("Status");
 
                     b.HasIndex("TaxId")
-                        .IsUnique()
-                        .HasFilter("[tax_id] IS NOT NULL");
-
-                    b.ToTable("customers", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.CustomerModels.CustomerContact", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("CustomerId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("customer_id");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(320)
-                        .HasColumnType("nvarchar(320)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("first_name");
-
-                    b.Property<bool>("IsPrimary")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_primary");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("last_name");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)")
-                        .HasColumnName("note");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("phone");
-
-                    b.Property<string>("RoleTitle")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)")
-                        .HasColumnName("role_title");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .IsUnique()
-                        .HasFilter("is_primary = 1");
-
-                    b.HasIndex("Email");
-
-                    b.HasIndex("CustomerId", "IsPrimary");
-
-                    b.ToTable("customer_contacts", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.CustomerModels.CustomerNote", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(8000)
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("content");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("CreatedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
-
-                    b.Property<long>("CustomerId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("customer_id");
-
-                    b.Property<string>("NoteType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("note_type");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("NoteType");
-
-                    b.HasIndex("CustomerId", "CreatedAt");
-
-                    b.ToTable("customer_notes", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Department")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("department");
-
-                    b.Property<string>("EmployeeType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("employee_type");
-
-                    b.Property<DateOnly>("HireDate")
-                        .HasColumnType("date")
-                        .HasColumnName("hire_date");
-
-                    b.Property<string>("JobTitle")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("PersonId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("person_id");
-
-                    b.Property<int>("RemainingVacationDays")
-                        .HasColumnType("int")
-                        .HasColumnName("remaining_vacation_days");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("status");
-
-                    b.Property<DateOnly?>("TerminatedAt")
-                        .HasColumnType("date")
-                        .HasColumnName("terminated_at");
-
-                    b.Property<int>("VacationDaysPerYear")
-                        .HasColumnType("int")
-                        .HasColumnName("vacation_days_per_year");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PersonId")
                         .IsUnique();
 
-                    b.HasIndex("Status");
-
-                    b.ToTable("employee", null, t =>
+                    b.ToTable("customers", null, t =>
                         {
-                            t.HasCheckConstraint("ck_employee_terminated_after_hire", "terminated_at IS NULL OR terminated_at >= hire_date");
+                            t.HasCheckConstraint("ck_customer_company_name_not_empty", "company_name <> ''");
 
-                            t.HasCheckConstraint("ck_employee_vacation_nonneg", "remaining_vacation_days >= 0 AND vacation_days_per_year >= 0");
+                            t.HasCheckConstraint("ck_customer_updated_at", "updated_at >= created_at");
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.EmployeeBankAccount", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -427,56 +205,6 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("account_last4");
 
-                    b.Property<string>("Country")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("country");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("employee_id");
-
-                    b.Property<bool>("IsPrimary")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_primary");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.Property<DateOnly?>("ValidFrom")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_from");
-
-                    b.Property<DateOnly?>("ValidTo")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_to");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("EmployeeId", "IsPrimary");
-
-                    b.ToTable("employee_bank_accounts", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_employee_bank_account_dates", "valid_to IS NULL OR valid_to >= valid_from");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.EmployeeCompensation", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
@@ -487,92 +215,39 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("currency");
 
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("employee_id");
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("department");
 
-                    b.Property<string>("ExtraPensionEncrypted")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("extra_pension_encrypted");
-
-                    b.Property<string>("HourlyWageEncrypted")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("hourly_wage_encrypted");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.Property<DateOnly>("ValidFrom")
+                    b.Property<DateOnly>("HireDate")
                         .HasColumnType("date")
-                        .HasColumnName("valid_from");
+                        .HasColumnName("hire_date");
 
-                    b.Property<DateOnly?>("ValidTo")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_to");
+                    b.Property<decimal>("HourlyWage")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("hourly_wage");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("EmployeeId", "ValidFrom");
-
-                    b.ToTable("employee_compensations", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_employee_compensation_dates", "valid_to IS NULL OR valid_to >= valid_from");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.LeaveRequest", b =>
-                {
-                    b.Property<long>("Id")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset?>("ApprovedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("approved_at");
-
-                    b.Property<long?>("ApprovedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("approved_by_user_id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("employee_id");
-
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date")
-                        .HasColumnName("end_date");
-
-                    b.Property<string>("LeaveType")
+                    b.Property<string>("JobTitle")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("leave_type");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("job_title");
 
-                    b.Property<string>("Reason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)")
-                        .HasColumnName("reason");
-
-                    b.Property<long>("RequestedByUserId")
+                    b.Property<long>("PersonId")
                         .HasColumnType("bigint")
-                        .HasColumnName("requested_by_user_id");
+                        .HasColumnName("person_id");
 
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
+                    b.Property<int>("RemainingVacationDays")
+                        .HasColumnType("int")
+                        .HasColumnName("remaining_vacation_days");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -580,93 +255,32 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("status");
 
+                    b.Property<DateOnly?>("TerminatedAt")
+                        .HasColumnType("date")
+                        .HasColumnName("terminated_at");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at");
 
+                    b.Property<int>("VacationDaysPerYear")
+                        .HasColumnType("int")
+                        .HasColumnName("vacation_days_per_year");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ApprovedByUserId");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("RequestedByUserId");
-
-                    b.HasIndex("StartDate");
+                    b.HasIndex("PersonId")
+                        .IsUnique();
 
                     b.HasIndex("Status");
 
-                    b.HasIndex("EmployeeId", "StartDate");
-
-                    b.ToTable("leave_requests", null, t =>
+                    b.ToTable("employees", null, t =>
                         {
-                            t.HasCheckConstraint("ck_leave_dates", "end_date >= start_date");
-                        });
-                });
+                            t.HasCheckConstraint("ck_employee_job_title_not_empty", "job_title <> ''");
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.BillingRate", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                            t.HasCheckConstraint("ck_employee_terminated_after_hire", "terminated_at IS NULL OR terminated_at >= hire_date");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("currency");
-
-                    b.Property<decimal>("HourlyRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("hourly_rate");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("name");
-
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("project_id");
-
-                    b.Property<DateOnly>("ValidFrom")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_from");
-
-                    b.Property<DateOnly?>("ValidTo")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_to");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsActive");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("ValidFrom");
-
-                    b.HasIndex("ValidTo");
-
-                    b.HasIndex("ProjectId", "IsActive", "ValidFrom", "ValidTo");
-
-                    b.ToTable("billing_rates", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_billing_rate_currency_not_empty", "currency <> ''");
-
-                            t.HasCheckConstraint("ck_billing_rate_hourly_nonneg", "hourly_rate >= 0");
-
-                            t.HasCheckConstraint("ck_billing_rate_name_not_empty", "name <> ''");
-
-                            t.HasCheckConstraint("ck_billing_rate_valid_range", "valid_to IS NULL OR valid_to >= valid_from");
+                            t.HasCheckConstraint("ck_employee_vacation_nonneg", "remaining_vacation_days >= 0 AND vacation_days_per_year >= 0");
                         });
                 });
 
@@ -683,6 +297,14 @@ namespace PowerPulseRestAPI.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("billing_address_snapshot");
+
+                    b.Property<DateOnly>("BillingPeriodEnd")
+                        .HasColumnType("date")
+                        .HasColumnName("billing_period_end");
+
+                    b.Property<DateOnly>("BillingPeriodStart")
+                        .HasColumnType("date")
+                        .HasColumnName("billing_period_start");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
@@ -726,20 +348,12 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("date")
                         .HasColumnName("issue_date");
 
-                    b.Property<DateTimeOffset?>("IssuedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("issued_at");
-
-                    b.Property<long?>("IssuedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("issued_by_user_id");
-
                     b.Property<string>("Note")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)")
                         .HasColumnName("note");
 
-                    b.Property<long?>("ProjectId")
+                    b.Property<long>("ProjectId")
                         .HasColumnType("bigint")
                         .HasColumnName("project_id");
 
@@ -779,8 +393,6 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasIndex("IssueDate");
 
-                    b.HasIndex("IssuedByUserId");
-
                     b.HasIndex("ProjectId");
 
                     b.HasIndex("Status");
@@ -791,66 +403,19 @@ namespace PowerPulseRestAPI.Migrations
                         {
                             t.HasCheckConstraint("ck_invoice_amounts_nonneg", "subtotal_amount >= 0 AND tax_amount >= 0 AND total_amount >= 0");
 
+                            t.HasCheckConstraint("ck_invoice_billing_period", "billing_period_end >= billing_period_start");
+
+                            t.HasCheckConstraint("ck_invoice_currency_not_empty", "currency <> ''");
+
                             t.HasCheckConstraint("ck_invoice_due_after_issue", "due_date >= issue_date");
 
-                            t.HasCheckConstraint("ck_invoice_issue_consistency", "(issued_at IS NULL AND issued_by_user_id IS NULL) OR (issued_at IS NOT NULL AND issued_by_user_id IS NOT NULL)");
+                            t.HasCheckConstraint("ck_invoice_number_not_empty", "invoice_number <> ''");
 
                             t.HasCheckConstraint("ck_invoice_total_match", "total_amount = subtotal_amount + tax_amount");
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceHistory", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("ChangedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("changed_at");
-
-                    b.Property<long>("ChangedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("changed_by_user_id");
-
-                    b.Property<long>("InvoiceId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("invoice_id");
-
-                    b.Property<string>("NewStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("new_status");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<string>("OldStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("old_status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChangedAt");
-
-                    b.HasIndex("ChangedByUserId");
-
-                    b.HasIndex("InvoiceId");
-
-                    b.HasIndex("InvoiceId", "ChangedAt");
-
-                    b.ToTable("invoice_history", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceItem", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceLaborItem", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -863,20 +428,9 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("description");
-
                     b.Property<long>("InvoiceId")
                         .HasColumnType("bigint")
                         .HasColumnName("invoice_id");
-
-                    b.Property<string>("ItemType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("item_type");
 
                     b.Property<decimal>("LineSubtotal")
                         .HasPrecision(18, 2)
@@ -894,24 +448,79 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnName("line_total");
 
                     b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("quantity");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("sort_order");
 
                     b.Property<decimal>("TaxRate")
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)")
                         .HasColumnName("tax_rate");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("Unit")
                         .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)")
-                        .HasColumnName("title");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("unit");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("unit_price");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId")
+                        .IsUnique();
+
+                    b.ToTable("invoice_labor_items", (string)null);
+                });
+
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceMaterialItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<long>("InvoiceId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<decimal>("LineSubtotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("line_subtotal");
+
+                    b.Property<decimal>("LineTax")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("line_tax");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("line_total");
+
+                    b.Property<long>("MaterialId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("material_id");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("quantity");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)")
+                        .HasColumnName("tax_rate");
 
                     b.Property<string>("Unit")
                         .IsRequired()
@@ -928,121 +537,11 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasIndex("InvoiceId");
 
-                    b.HasIndex("InvoiceId", "SortOrder");
+                    b.HasIndex("MaterialId");
 
-                    b.ToTable("invoice_items", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_invoice_item_amounts_nonneg", "unit_price >= 0 AND line_subtotal >= 0 AND line_tax >= 0 AND line_total >= 0");
+                    b.HasIndex("InvoiceId", "MaterialId");
 
-                            t.HasCheckConstraint("ck_invoice_item_qty_positive", "quantity > 0");
-
-                            t.HasCheckConstraint("ck_invoice_item_sort_nonneg", "sort_order >= 0");
-
-                            t.HasCheckConstraint("ck_invoice_item_total_match", "line_total = line_subtotal + line_tax");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceItemSource", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("InvoiceItemId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("invoice_item_id");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<long>("SourceId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("source_id");
-
-                    b.Property<string>("SourceType")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("source_type");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("unit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InvoiceItemId");
-
-                    b.HasIndex("SourceType", "SourceId");
-
-                    b.ToTable("invoice_item_sources", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_invoice_item_source_qty_positive", "quantity > 0");
-
-                            t.HasCheckConstraint("ck_invoice_item_source_source_id_positive", "source_id > 0");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.KnowledgeModels.Calculator", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("name");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.HasIndex("IsActive");
-
-                    b.ToTable("calculators", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_calculator_code_not_empty", "code <> ''");
-                        });
+                    b.ToTable("invoice_material_items", (string)null);
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.KnowledgeModels.KnowledgeArticle", b =>
@@ -1053,12 +552,6 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ArticleType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("article_type");
 
                     b.Property<long?>("CategoryId")
                         .HasColumnType("bigint")
@@ -1078,15 +571,11 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("created_by_user_id");
 
-                    b.Property<DateTimeOffset?>("PublishedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("published_at");
-
-                    b.Property<string>("SeverityTag")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("severity_tag");
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1104,15 +593,6 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at");
 
-                    b.Property<long>("UpdatedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("updated_by_user_id");
-
-                    b.Property<string>("Version")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("version");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -1121,20 +601,9 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.HasIndex("PublishedAt");
-
-                    b.HasIndex("SeverityTag");
-
                     b.HasIndex("Status");
 
-                    b.HasIndex("UpdatedByUserId");
-
-                    b.HasIndex("Status", "PublishedAt");
-
-                    b.ToTable("knowledge_articles", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_knowledge_article_publish_consistency", "(status <> 'PUBLISHED' AND published_at IS NULL) OR (status = 'PUBLISHED' AND published_at IS NOT NULL)");
-                        });
+                    b.ToTable("knowledge_articles", (string)null);
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.KnowledgeModels.KnowledgeArticleAttachment", b =>
@@ -1245,12 +714,11 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ArticleId");
+
                     b.HasIndex("ReadAt");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("ArticleId", "UserId")
-                        .IsUnique();
 
                     b.ToTable("knowledge_article_reads", (string)null);
                 });
@@ -1268,20 +736,17 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("description");
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)")
                         .HasColumnName("name");
-
-                    b.Property<long?>("ParentId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("parent_id");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset")
@@ -1292,15 +757,10 @@ namespace PowerPulseRestAPI.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("knowledge_categories", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_knowledge_category_not_self_parent", "parent_id IS NULL OR parent_id <> id");
-                        });
+                    b.ToTable("knowledge_categories", (string)null);
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.Material", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialsModels.Material", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1322,6 +782,12 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("currency");
+
                     b.Property<string>("DefaultUnit")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1337,6 +803,12 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("is_active");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Manufacturer")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)")
@@ -1348,14 +820,20 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(300)")
                         .HasColumnName("name");
 
-                    b.Property<string>("Sku")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)")
-                        .HasColumnName("sku");
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)")
+                        .HasColumnName("url");
 
                     b.HasKey("Id");
 
@@ -1365,19 +843,25 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("IsActive");
 
-                    b.HasIndex("Sku")
-                        .IsUnique()
-                        .HasFilter("[sku] IS NOT NULL");
+                    b.HasIndex("Name");
 
                     b.ToTable("materials", null, t =>
                         {
+                            t.HasCheckConstraint("ck_material_currency_not_empty", "currency <> ''");
+
                             t.HasCheckConstraint("ck_material_default_unit_not_empty", "default_unit <> ''");
+
+                            t.HasCheckConstraint("ck_material_name_not_empty", "name <> ''");
+
+                            t.HasCheckConstraint("ck_material_price_nonneg", "price >= 0");
+
+                            t.HasCheckConstraint("ck_material_url_not_empty", "url <> ''");
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialCategory", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialsModels.MaterialCategory", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1395,78 +879,30 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(2000)")
                         .HasColumnName("description");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)")
                         .HasColumnName("name");
 
-                    b.Property<long?>("ParentId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("parent_id");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.HasIndex("ParentId");
-
                     b.ToTable("material_categories", null, t =>
                         {
-                            t.HasCheckConstraint("ck_material_category_not_self_parent", "parent_id IS NULL OR parent_id <> id");
+                            t.HasCheckConstraint("ck_material_category_name_not_empty", "name <> ''");
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialImage", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("AltText")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)")
-                        .HasColumnName("alt_text");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<bool>("IsPrimary")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_primary");
-
-                    b.Property<long>("MaterialId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("sort_order");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("url");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MaterialId");
-
-                    b.HasIndex("MaterialId", "SortOrder");
-
-                    b.ToTable("material_images", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_material_image_sort_nonneg", "sort_order >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialMovement", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialsModels.MaterialMovement", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1483,13 +919,23 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("created_by_user_id");
 
-                    b.Property<long?>("FromStorageLocationId")
+                    b.Property<long?>("InvoiceId")
                         .HasColumnType("bigint")
-                        .HasColumnName("from_storage_location_id");
+                        .HasColumnName("invoice_id");
+
+                    b.Property<DateTimeOffset?>("InvoicedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("invoiced_at");
 
                     b.Property<long>("MaterialId")
                         .HasColumnType("bigint")
                         .HasColumnName("material_id");
+
+                    b.Property<string>("MovementType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("movement_type");
 
                     b.Property<string>("Note")
                         .HasMaxLength(2000)
@@ -1500,32 +946,18 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("occurred_at");
 
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("operation_id");
+
+                    b.Property<long?>("ProjectId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("project_id");
+
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)")
                         .HasColumnName("quantity");
-
-                    b.Property<long?>("ToEmployeeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("to_employee_id");
-
-                    b.Property<long?>("ToProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("to_project_id");
-
-                    b.Property<long?>("ToStorageLocationId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("to_storage_location_id");
-
-                    b.Property<long?>("ToVehicleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("to_vehicle_id");
-
-                    b.Property<string>("TransactionType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("transaction_type");
 
                     b.Property<string>("Unit")
                         .IsRequired()
@@ -1535,35 +967,119 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("CreatedByUserId");
 
-                    b.HasIndex("FromStorageLocationId");
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("InvoicedAt");
 
                     b.HasIndex("MaterialId");
 
+                    b.HasIndex("MovementType");
+
                     b.HasIndex("OccurredAt");
 
-                    b.HasIndex("ToEmployeeId");
+                    b.HasIndex("OperationId");
 
-                    b.HasIndex("ToProjectId");
+                    b.HasIndex("ProjectId");
 
-                    b.HasIndex("ToStorageLocationId");
+                    b.HasIndex("MaterialId", "ProjectId");
 
-                    b.HasIndex("ToVehicleId");
-
-                    b.HasIndex("MaterialId", "OccurredAt");
+                    b.HasIndex("OperationId", "MaterialId");
 
                     b.ToTable("material_movements", null, t =>
                         {
-                            t.HasCheckConstraint("ck_material_movement_qty_positive", "quantity > 0");
+                            t.HasCheckConstraint("ck_material_movement_invoiced_at_requires_invoice", "invoice_id IS NOT NULL OR invoiced_at IS NULL");
 
-                            t.HasCheckConstraint("ck_material_movement_single_target", "( (CASE WHEN to_storage_location_id IS NULL THEN 0 ELSE 1 END) +  (CASE WHEN to_project_id IS NULL THEN 0 ELSE 1 END) +  (CASE WHEN to_vehicle_id IS NULL THEN 0 ELSE 1 END) +  (CASE WHEN to_employee_id IS NULL THEN 0 ELSE 1 END) ) = 1");
+                            t.HasCheckConstraint("ck_material_movement_qty_positive", "quantity > 0");
 
                             t.HasCheckConstraint("ck_material_movement_unit_not_empty", "unit <> ''");
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialPriceList", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PersonModels.Person", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("AddressId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("address_id");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)")
+                        .HasColumnName("avatar_url");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date")
+                        .HasColumnName("date_of_birth");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("first_name");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("last_name");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("LastName");
+
+                    b.ToTable("persons", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_person_email_not_empty", "email <> ''");
+
+                            t.HasCheckConstraint("ck_person_first_name_not_empty", "first_name <> ''");
+
+                            t.HasCheckConstraint("ck_person_last_name_not_empty", "last_name <> ''");
+
+                            t.HasCheckConstraint("ck_person_updated_at", "updated_at >= created_at");
+                        });
+                });
+
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PersonModels.PersonIdentifier", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1576,98 +1092,20 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("Currency")
+                    b.Property<string>("EncryptedSSN")
                         .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("value_encrypted");
+
+                    b.Property<string>("Last4")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
-                        .HasColumnName("currency");
+                        .HasColumnName("last4");
 
-                    b.Property<long>("MaterialId")
+                    b.Property<long>("PersonId")
                         .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("price");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.Property<DateOnly>("ValidFrom")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_from");
-
-                    b.Property<DateOnly?>("ValidTo")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_to");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MaterialId");
-
-                    b.HasIndex("MaterialId", "ValidFrom")
-                        .IsUnique();
-
-                    b.ToTable("material_price_lists", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_material_price_list_price_nonneg", "price >= 0");
-
-                            t.HasCheckConstraint("ck_material_price_list_valid_range", "valid_to IS NULL OR valid_to >= valid_from");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialProjectBalance", b =>
-                {
-                    b.Property<long>("MaterialId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("project_id");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("MaterialId", "ProjectId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("material_project_balance", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_material_project_balance_qty_nonneg", "quantity >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialStock", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("MaterialId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<long>("StorageLocationId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("storage_location_id");
+                        .HasColumnName("person_id");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset")
@@ -1675,44 +1113,9 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StorageLocationId");
+                    b.HasIndex("PersonId");
 
-                    b.HasIndex("MaterialId", "StorageLocationId")
-                        .IsUnique();
-
-                    b.ToTable("material_stock", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_material_stock_qty_nonneg", "quantity >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialVehicleBalance", b =>
-                {
-                    b.Property<long>("MaterialId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<long>("VehicleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("vehicle_id");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("MaterialId", "VehicleId");
-
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("material_vehicle_balance", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_material_vehicle_balance_qty_nonneg", "quantity >= 0");
-                        });
+                    b.ToTable("person_identifiers", (string)null);
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.Project", b =>
@@ -1724,6 +1127,15 @@ namespace PowerPulseRestAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long>("AddressId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("address_id");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)")
+                        .HasColumnName("avatar_url");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1734,9 +1146,13 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<long>("CreatedByUserId")
+                    b.Property<long>("CreatedByEmployeeId")
                         .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
+                        .HasColumnName("created_by_employee_id");
+
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("customer_id");
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
@@ -1746,6 +1162,12 @@ namespace PowerPulseRestAPI.Migrations
                     b.Property<DateOnly?>("EndDate")
                         .HasColumnType("date")
                         .HasColumnName("end_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1757,7 +1179,7 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("responsible_employee_id");
 
-                    b.Property<DateOnly?>("StartDate")
+                    b.Property<DateOnly>("StartDate")
                         .HasColumnType("date")
                         .HasColumnName("start_date");
 
@@ -1773,10 +1195,20 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AddressId")
+                        .IsUnique();
+
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.HasIndex("CreatedByUserId");
+                    b.HasIndex("CreatedByEmployeeId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("EndDate");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.HasIndex("ResponsibleEmployeeId");
 
@@ -1786,7 +1218,11 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.ToTable("projects", null, t =>
                         {
+                            t.HasCheckConstraint("ck_project_code_not_empty", "code <> ''");
+
                             t.HasCheckConstraint("ck_project_dates", "end_date IS NULL OR start_date IS NULL OR end_date >= start_date");
+
+                            t.HasCheckConstraint("ck_project_name_not_empty", "name <> ''");
                         });
                 });
 
@@ -1815,14 +1251,6 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("project_id");
 
-                    b.Property<DateOnly?>("ValidFrom")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_from");
-
-                    b.Property<DateOnly?>("ValidTo")
-                        .HasColumnType("date")
-                        .HasColumnName("valid_to");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
@@ -1832,12 +1260,7 @@ namespace PowerPulseRestAPI.Migrations
                     b.HasIndex("ProjectId", "EmployeeId")
                         .IsUnique();
 
-                    b.HasIndex("ProjectId", "IsEnabled");
-
-                    b.ToTable("project_access", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_project_access_dates", "valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from");
-                        });
+                    b.ToTable("project_access", (string)null);
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectAttachment", b =>
@@ -1849,8 +1272,10 @@ namespace PowerPulseRestAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("AttachmentType")
-                        .HasColumnType("int")
+                    b.Property<string>("AttachmentType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
                         .HasColumnName("attachment_type");
 
                     b.Property<string>("Caption")
@@ -1862,9 +1287,9 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<long>("CreatedByUserId")
+                    b.Property<long>("CreatedByEmployeeId")
                         .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_idW");
+                        .HasColumnName("created_by_employee_id");
 
                     b.Property<long>("ProjectId")
                         .HasColumnType("bigint")
@@ -1876,85 +1301,18 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(2048)")
                         .HasColumnName("url");
 
-                    b.Property<long?>("WorkSessionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("work_session_id");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedByUserId");
+                    b.HasIndex("CreatedByEmployeeId");
 
                     b.HasIndex("ProjectId");
-
-                    b.HasIndex("WorkSessionId");
 
                     b.HasIndex("ProjectId", "CreatedAt");
 
-                    b.ToTable("project_attachments", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectCustomer", b =>
-                {
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("project_id");
-
-                    b.Property<long>("CustomerId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("customer_id");
-
-                    b.Property<string>("RelationshipType")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("relationship_type");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<bool?>("IsPrimaryOwner")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_primary_owner");
-
-                    b.HasKey("ProjectId", "CustomerId", "RelationshipType");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("ProjectId", "CustomerId");
-
-                    b.ToTable("project_customers", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectCustomerContact", b =>
-                {
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("project_id");
-
-                    b.Property<long>("CustomerContactId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("customer_contact_id");
-
-                    b.Property<string>("ContactRole")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("contact_role");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.HasKey("ProjectId", "CustomerContactId", "ContactRole");
-
-                    b.HasIndex("CustomerContactId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("ProjectId", "CustomerContactId");
-
-                    b.ToTable("project_customer_contacts", (string)null);
+                    b.ToTable("project_attachments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_project_attachment_url_not_empty", "url <> ''");
+                        });
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectNote", b =>
@@ -1968,19 +1326,22 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)")
                         .HasColumnName("content");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<long>("CreatedByUserId")
+                    b.Property<long>("CreatedByEmployeeId")
                         .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
+                        .HasColumnName("created_by_employee_id");
 
-                    b.Property<int>("NoteType")
-                        .HasColumnType("int")
+                    b.Property<string>("NoteType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
                         .HasColumnName("note_type");
 
                     b.Property<long>("ProjectId")
@@ -1991,22 +1352,18 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at");
 
-                    b.Property<long?>("WorkSessionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("work_session_id");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedByUserId");
+                    b.HasIndex("CreatedByEmployeeId");
 
                     b.HasIndex("ProjectId");
-
-                    b.HasIndex("WorkSessionId");
 
                     b.HasIndex("ProjectId", "CreatedAt");
 
                     b.ToTable("project_notes", null, t =>
                         {
+                            t.HasCheckConstraint("ck_project_note_content_not_empty", "content <> ''");
+
                             t.HasCheckConstraint("ck_project_notes_updated_at", "updated_at >= created_at");
                         });
                 });
@@ -2024,13 +1381,18 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("assigned_to_employee_id");
 
+                    b.Property<string>("Caption")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("caption");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<long>("CreatedByUserId")
+                    b.Property<long>("CreatedByEmployeeId")
                         .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
+                        .HasColumnName("created_by_employee_id");
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
@@ -2041,7 +1403,7 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("due_at");
 
-                    b.Property<int?>("EstimatedMinutes")
+                    b.Property<int?>("EstimatedHours")
                         .HasColumnType("int")
                         .HasColumnName("estimated_minutes");
 
@@ -2071,11 +1433,16 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("Url")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)")
+                        .HasColumnName("url");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssignedToEmployeeId");
 
-                    b.HasIndex("CreatedByUserId");
+                    b.HasIndex("CreatedByEmployeeId");
 
                     b.HasIndex("DueAt");
 
@@ -2088,10 +1455,14 @@ namespace PowerPulseRestAPI.Migrations
                     b.ToTable("project_tasks", null, t =>
                         {
                             t.HasCheckConstraint("ck_project_task_estimate_positive", "estimated_minutes IS NULL OR estimated_minutes >= 0");
+
+                            t.HasCheckConstraint("ck_project_task_priority", "priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')");
+
+                            t.HasCheckConstraint("ck_project_task_title_not_empty", "title <> ''");
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.TaskAttachment", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockModels.LowStockNote", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -2100,98 +1471,16 @@ namespace PowerPulseRestAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Caption")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("caption");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<long>("TaskId")
+                    b.Property<long>("CreatedByEmployeeId")
                         .HasColumnType("bigint")
-                        .HasColumnName("task_id");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("url");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.HasIndex("TaskId", "CreatedAt");
-
-                    b.ToTable("task_attachments", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.TaskUpdate", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(8000)
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("content");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("CreatedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
-
-                    b.Property<long>("TaskId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("task_id");
-
-                    b.Property<string>("UpdateType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("update_type");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("TaskId", "CreatedAt");
-
-                    b.ToTable("task_updates", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PurchaseReqModels.PurchaseRequest", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset?>("ApprovedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("approved_at");
-
-                    b.Property<long?>("ApprovedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("approved_by_user_id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
+                        .HasColumnName("created_by_employee_id");
 
                     b.Property<string>("Note")
+                        .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)")
                         .HasColumnName("note");
@@ -2202,213 +1491,27 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("priority");
 
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("project_id");
-
-                    b.Property<long>("RequestedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("requested_by_user_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("status");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApprovedByUserId");
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("Priority");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("RequestedByUserId");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("ProjectId", "Status");
-
-                    b.ToTable("purchase_requests", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_purchase_request_approval_consistency", "(approved_at IS NULL AND approved_by_user_id IS NULL) OR (approved_at IS NOT NULL AND approved_by_user_id IS NOT NULL)");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PurchaseReqModels.PurchaseRequestItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("ItemName")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)")
-                        .HasColumnName("item_name");
-
-                    b.Property<string>("ItemType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("item_type");
-
-                    b.Property<long?>("MaterialId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)")
-                        .HasColumnName("note");
-
-                    b.Property<long>("PurchaseRequestId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("purchase_request_id");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<long?>("ToolId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_id");
-
-                    b.Property<string>("Unit")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("unit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemType");
-
-                    b.HasIndex("MaterialId");
-
-                    b.HasIndex("PurchaseRequestId");
-
-                    b.HasIndex("ToolId");
-
-                    b.ToTable("purchase_request_items", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_purchase_request_item_type_fields", "( (item_type = 'MATERIAL' AND material_id IS NOT NULL AND tool_id IS NULL AND quantity IS NOT NULL AND quantity > 0 AND unit IS NOT NULL AND unit <> '') OR  (item_type = 'TOOL' AND tool_id IS NOT NULL AND material_id IS NULL AND quantity IS NULL AND unit IS NULL))");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequest", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ApprovalNote")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("approval_note");
-
-                    b.Property<DateTimeOffset?>("ApprovedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("approved_at");
-
-                    b.Property<long?>("ApprovedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("approved_by_user_id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long?>("EmployeeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("employee_id");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<string>("Priority")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("priority");
-
-                    b.Property<long?>("ProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("project_id");
-
-                    b.Property<string>("RequestType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("request_type");
-
-                    b.Property<DateTimeOffset>("RequestedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("requested_at");
-
-                    b.Property<long>("RequestedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("requested_by_user_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("status");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.Property<long?>("VehicleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("vehicle_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApprovedByUserId");
-
-                    b.HasIndex("EmployeeId");
+                    b.HasIndex("CreatedByEmployeeId");
 
                     b.HasIndex("Priority");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("CreatedByEmployeeId", "CreatedAt");
 
-                    b.HasIndex("RequestedAt");
-
-                    b.HasIndex("RequestedByUserId");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("stock_requests", null, t =>
+                    b.ToTable("low_stock_notes", null, t =>
                         {
-                            t.HasCheckConstraint("ck_stock_request_approval_consistency", "(approved_at IS NULL AND approved_by_user_id IS NULL) OR (approved_at IS NOT NULL AND approved_by_user_id IS NOT NULL)");
-
-                            t.HasCheckConstraint("ck_stock_request_single_scope", "( (CASE WHEN project_id IS NULL THEN 0 ELSE 1 END) +  (CASE WHEN vehicle_id IS NULL THEN 0 ELSE 1 END) +  (CASE WHEN employee_id IS NULL THEN 0 ELSE 1 END) ) = 1");
+                            t.HasCheckConstraint("ck_low_stock_note_updated_at", "updated_at >= created_at");
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestFulfillment", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.TextControlModels.TextTemplate", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -2417,288 +1520,36 @@ namespace PowerPulseRestAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset>("IssuedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("issued_at");
-
-                    b.Property<long>("IssuedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("issued_by_user_id");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<long>("StockRequestId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("stock_request_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IssuedAt");
-
-                    b.HasIndex("IssuedByUserId");
-
-                    b.HasIndex("StockRequestId");
-
-                    b.ToTable("stock_request_fulfillments", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestFulfillmentItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long?>("FromStorageLocationId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("from_storage_location_id");
-
-                    b.Property<long>("FulfillmentId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("fulfillment_id");
-
-                    b.Property<string>("ItemType")
+                    b.Property<string>("BodyTemplate")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("item_type");
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("body_template");
 
-                    b.Property<long?>("MaterialId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)")
-                        .HasColumnName("note");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<long?>("ToolAssetId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_asset_id");
-
-                    b.Property<string>("Unit")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("unit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FromStorageLocationId");
-
-                    b.HasIndex("FulfillmentId");
-
-                    b.HasIndex("ItemType");
-
-                    b.HasIndex("MaterialId");
-
-                    b.HasIndex("ToolAssetId");
-
-                    b.ToTable("stock_request_fulfillment_items", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_stock_fulfillment_item_type_fields", "( (item_type = 'MATERIAL' AND material_id IS NOT NULL AND quantity IS NOT NULL AND quantity > 0 AND unit IS NOT NULL AND unit <> '' AND from_storage_location_id IS NOT NULL AND tool_asset_id IS NULL) OR  (item_type = 'TOOL' AND tool_asset_id IS NOT NULL AND material_id IS NULL AND quantity IS NULL AND unit IS NULL))");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestHistory", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("ChangedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("changed_at");
-
-                    b.Property<long>("ChangedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("changed_by_user_id");
-
-                    b.Property<string>("NewStatus")
+                    b.Property<string>("Channel")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
-                        .HasColumnName("new_status");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<string>("OldStatus")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("old_status");
-
-                    b.Property<long>("StockRequestId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("stock_request_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChangedAt");
-
-                    b.HasIndex("ChangedByUserId");
-
-                    b.HasIndex("StockRequestId");
-
-                    b.HasIndex("StockRequestId", "ChangedAt");
-
-                    b.ToTable("stock_request_history", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnName("channel");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("ItemType")
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Key")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("item_type");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("key");
 
-                    b.Property<long?>("MaterialId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<string>("Note")
+                    b.Property<string>("TitleTemplate")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)")
-                        .HasColumnName("note");
-
-                    b.Property<int?>("RequestedCount")
-                        .HasColumnType("int")
-                        .HasColumnName("requested_count");
-
-                    b.Property<decimal?>("RequestedQuantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasColumnName("requested_quantity");
-
-                    b.Property<long>("StockRequestId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("stock_request_id");
-
-                    b.Property<long?>("ToolId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_id");
-
-                    b.Property<string>("Unit")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("unit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemType");
-
-                    b.HasIndex("MaterialId");
-
-                    b.HasIndex("StockRequestId");
-
-                    b.HasIndex("ToolId");
-
-                    b.ToTable("stock_request_items", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_stock_request_item_type_fields", "( (item_type = 'MATERIAL' AND material_id IS NOT NULL AND tool_id IS NULL AND requested_quantity IS NOT NULL AND requested_quantity > 0 AND unit IS NOT NULL AND unit <> '' AND requested_count IS NULL) OR  (item_type = 'TOOL' AND tool_id IS NOT NULL AND material_id IS NULL AND requested_count IS NOT NULL AND requested_count > 0 AND requested_quantity IS NULL AND unit IS NULL))");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestReservation", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset?>("ExpiresAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("expires_at");
-
-                    b.Property<string>("ItemType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("item_type");
-
-                    b.Property<long?>("MaterialId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("material_id");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<DateTimeOffset>("ReservedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("reserved_at");
-
-                    b.Property<long>("ReservedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("reserved_by_user_id");
-
-                    b.Property<decimal?>("ReservedQuantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasColumnName("reserved_quantity");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("status");
-
-                    b.Property<long>("StockRequestItemId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("stock_request_item_id");
-
-                    b.Property<long?>("StorageLocationId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("storage_location_id");
-
-                    b.Property<long?>("StorageLocationId1")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("ToolAssetId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_asset_id");
+                        .HasColumnName("title_template");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset")
@@ -2706,60 +1557,19 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MaterialId");
+                    b.HasIndex("Channel");
 
-                    b.HasIndex("ReservedAt");
-
-                    b.HasIndex("ReservedByUserId");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("StockRequestItemId");
-
-                    b.HasIndex("StorageLocationId");
-
-                    b.HasIndex("StorageLocationId1");
-
-                    b.HasIndex("ToolAssetId");
-
-                    b.ToTable("stock_request_reservations", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_stock_reservation_expires_after_reserved", "expires_at IS NULL OR expires_at >= reserved_at");
-
-                            t.HasCheckConstraint("ck_stock_reservation_item_type_fields", "( (item_type = 'MATERIAL' AND material_id IS NOT NULL AND reserved_quantity IS NOT NULL AND reserved_quantity > 0 AND tool_asset_id IS NULL) OR  (item_type = 'TOOL' AND tool_asset_id IS NOT NULL AND material_id IS NULL AND reserved_quantity IS NULL))");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)")
-                        .HasColumnName("description");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
+                    b.HasIndex("Key", "Channel")
                         .IsUnique();
 
-                    b.ToTable("storage_locations", (string)null);
+                    b.ToTable("text_templates", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_text_template_body_not_empty", "body_template <> ''");
+
+                            t.HasCheckConstraint("ck_text_template_key_not_empty", "[key] <> ''");
+
+                            t.HasCheckConstraint("ck_text_template_updated_at", "updated_at >= created_at");
+                        });
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.Tool", b =>
@@ -2771,14 +1581,15 @@ namespace PowerPulseRestAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Barcode")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("barcode");
-
-                    b.Property<long>("CategoryId")
+                    b.Property<long?>("CategoryId")
                         .HasColumnType("bigint")
                         .HasColumnName("category_id");
+
+                    b.Property<string>("Condition")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("condition");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
@@ -2792,6 +1603,12 @@ namespace PowerPulseRestAPI.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit")
                         .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Manufacturer")
                         .HasMaxLength(200)
@@ -2809,61 +1626,13 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(300)")
                         .HasColumnName("name");
 
-                    b.Property<string>("Sku")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)")
-                        .HasColumnName("sku");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Barcode")
-                        .IsUnique()
-                        .HasFilter("[barcode] IS NOT NULL");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("IsActive");
-
-                    b.HasIndex("Name");
-
-                    b.HasIndex("Sku")
-                        .IsUnique()
-                        .HasFilter("[sku] IS NOT NULL");
-
-                    b.ToTable("tools", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("AssetTag")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("asset_tag");
-
-                    b.Property<string>("Condition")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("condition");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
+                    b.Property<DateOnly?>("PurchaseDate")
+                        .HasColumnType("date")
+                        .HasColumnName("purchase_date");
 
                     b.Property<string>("SerialNumber")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("serial_number");
 
                     b.Property<string>("Status")
@@ -2872,52 +1641,32 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("status");
 
-                    b.Property<long>("ToolId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)")
+                        .HasColumnName("url");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetTag")
-                        .IsUnique()
-                        .HasFilter("[asset_tag] IS NOT NULL");
+                    b.HasIndex("CategoryId");
 
-                    b.HasIndex("Condition");
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Name");
 
                     b.HasIndex("SerialNumber")
                         .IsUnique()
                         .HasFilter("[serial_number] IS NOT NULL");
 
-                    b.HasIndex("Status");
-
-                    b.HasIndex("ToolId");
-
-                    b.ToTable("tool_assets", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAssetStock", b =>
-                {
-                    b.Property<long>("ToolAssetId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_asset_id");
-
-                    b.Property<long?>("StorageLocationId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("storage_location_id");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("ToolAssetId");
-
-                    b.HasIndex("StorageLocationId");
-
-                    b.ToTable("tool_asset_stock", (string)null);
+                    b.ToTable("tools", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_tool_name_not_empty", "name <> ''");
+                        });
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAssignment", b =>
@@ -2941,6 +1690,10 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("created_by_user_id");
 
+                    b.Property<long>("EmployeeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("employee_id");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)")
@@ -2950,25 +1703,9 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("returned_at");
 
-                    b.Property<long?>("ToEmployeeId")
+                    b.Property<long>("ToolId")
                         .HasColumnType("bigint")
-                        .HasColumnName("to_employee_id");
-
-                    b.Property<long?>("ToProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("to_project_id");
-
-                    b.Property<long?>("ToStorageLocationId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("to_storage_location_id");
-
-                    b.Property<long?>("ToVehicleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("to_vehicle_id");
-
-                    b.Property<long>("ToolAssetId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_asset_id");
+                        .HasColumnName("tool_id");
 
                     b.HasKey("Id");
 
@@ -2976,23 +1713,19 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
+                    b.HasIndex("EmployeeId");
+
                     b.HasIndex("ReturnedAt");
 
-                    b.HasIndex("ToEmployeeId");
+                    b.HasIndex("ToolId")
+                        .IsUnique()
+                        .HasFilter("[returned_at] IS NULL");
 
-                    b.HasIndex("ToProjectId");
-
-                    b.HasIndex("ToStorageLocationId");
-
-                    b.HasIndex("ToVehicleId");
-
-                    b.HasIndex("ToolAssetId");
+                    b.HasIndex("EmployeeId", "ReturnedAt");
 
                     b.ToTable("tool_assignments", null, t =>
                         {
                             t.HasCheckConstraint("ck_tool_assignment_return_after_assign", "returned_at IS NULL OR returned_at >= assigned_at");
-
-                            t.HasCheckConstraint("ck_tool_assignment_single_target", "( (CASE WHEN to_storage_location_id IS NULL THEN 0 ELSE 1 END) +  (CASE WHEN to_vehicle_id IS NULL THEN 0 ELSE 1 END) +  (CASE WHEN to_project_id IS NULL THEN 0 ELSE 1 END) +  (CASE WHEN to_employee_id IS NULL THEN 0 ELSE 1 END) ) = 1");
                         });
                 });
 
@@ -3013,6 +1746,12 @@ namespace PowerPulseRestAPI.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)")
                         .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -3035,417 +1774,6 @@ namespace PowerPulseRestAPI.Migrations
                         {
                             t.HasCheckConstraint("ck_tool_category_not_self_parent", "parent_id IS NULL OR parent_id <> id");
                         });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolImage", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("AltText")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)")
-                        .HasColumnName("alt_text");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<bool>("IsPrimary")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_primary");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("sort_order");
-
-                    b.Property<long>("ToolId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_id");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("url");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ToolId");
-
-                    b.HasIndex("ToolId", "SortOrder");
-
-                    b.ToTable("tool_images", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_tool_image_sort_nonneg", "sort_order >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolIssue", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("IssueType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("issue_type");
-
-                    b.Property<long>("ReportedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("reported_by_user_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("status");
-
-                    b.Property<long>("ToolAssetId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_asset_id");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("ReportedByUserId");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("ToolAssetId");
-
-                    b.HasIndex("ToolAssetId", "Status");
-
-                    b.ToTable("tool_issues", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolIssueAttachment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Caption")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("caption");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("ToolIssueId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tool_issue_id");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("url");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ToolIssueId");
-
-                    b.ToTable("tool_issue_attachments", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.ActivityLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ActionType")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("action_type");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("CreatedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("description");
-
-                    b.Property<long>("EntityId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("entity_id");
-
-                    b.Property<string>("EntityType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("entity_type");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActionType");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("EntityType", "EntityId", "CreatedAt");
-
-                    b.ToTable("activity_log", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_activity_log_entity_id_positive", "entity_id > 0");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.Notification", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)")
-                        .HasColumnName("content");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long?>("CreatedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_read");
-
-                    b.Property<DateTimeOffset?>("ReadAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("read_at");
-
-                    b.Property<long?>("RelatedProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("related_project_id");
-
-                    b.Property<long?>("RelatedPurchaseRequestId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("related_purchase_request_id");
-
-                    b.Property<long?>("RelatedTaskId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("related_task_id");
-
-                    b.Property<long?>("RelatedToolAssetId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("related_tool_asset_id");
-
-                    b.Property<long?>("RelatedVehicleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("related_vehicle_id");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("severity");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)")
-                        .HasColumnName("title");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("type");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("RelatedProjectId");
-
-                    b.HasIndex("RelatedPurchaseRequestId");
-
-                    b.HasIndex("RelatedTaskId");
-
-                    b.HasIndex("RelatedToolAssetId");
-
-                    b.HasIndex("RelatedVehicleId");
-
-                    b.HasIndex("Severity");
-
-                    b.HasIndex("Type");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId", "IsRead", "CreatedAt");
-
-                    b.ToTable("notifications", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_notification_read_consistency", "(is_read = 0 AND read_at IS NULL) OR (is_read = 1 AND read_at IS NOT NULL)");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.Person", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("AvatarUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("avatar_url");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateOnly?>("DateOfBirth")
-                        .HasColumnType("date")
-                        .HasColumnName("date_of_birth");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("first_name");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("last_name");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("phone");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LastName");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("person", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.PersonIdentifier", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Country")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("country");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Last4")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("last4");
-
-                    b.Property<long>("PersonId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("person_id");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("type");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("ValueEncrypted")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("value_encrypted");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PersonId");
-
-                    b.HasIndex("PersonId", "Type")
-                        .IsUnique();
-
-                    b.ToTable("person_identifiers", (string)null);
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.Role", b =>
@@ -3490,7 +1818,7 @@ namespace PowerPulseRestAPI.Migrations
                             Id = 1L,
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Manager",
-                            Name = "MANAGER"
+                            Name = "ADMIN"
                         },
                         new
                         {
@@ -3524,6 +1852,12 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("is_active");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<DateTimeOffset?>("LastLoginAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("last_login_at");
@@ -3543,12 +1877,13 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("password_hash");
 
+                    b.Property<long>("PersonId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("person_id");
+
                     b.Property<long>("RoleId")
                         .HasColumnType("bigint")
                         .HasColumnName("role_id");
-
-                    b.Property<long?>("RoleId1")
-                        .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset")
@@ -3564,9 +1899,10 @@ namespace PowerPulseRestAPI.Migrations
                     b.HasIndex("Login")
                         .IsUnique();
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("PersonId")
+                        .IsUnique();
 
-                    b.HasIndex("RoleId1");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("users", null, t =>
                         {
@@ -3578,345 +1914,6 @@ namespace PowerPulseRestAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.WorkSession", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("employee_id");
-
-                    b.Property<DateTimeOffset?>("EndedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("ended_at");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("project_id");
-
-                    b.Property<DateTimeOffset>("StartedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("started_at");
-
-                    b.Property<long>("StartedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("started_by_user_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("status");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("StartedAt");
-
-                    b.HasIndex("StartedByUserId");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("EmployeeId", "ProjectId", "StartedAt");
-
-                    b.ToTable("work_sessions", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_work_session_end_after_start", "ended_at IS NULL OR ended_at >= started_at");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.WorkSessionEvent", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<long>("CreatedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
-
-                    b.Property<DateTimeOffset>("EventAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("event_at");
-
-                    b.Property<string>("EventType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("event_type");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<long>("WorkSessionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("work_session_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("WorkSessionId");
-
-                    b.HasIndex("WorkSessionId", "EventAt");
-
-                    b.ToTable("work_session_events", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_work_session_event_not_future", "event_at <= SYSDATETIMEOFFSET()");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.ServiceOrder", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset?>("AppointmentAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("appointment_at");
-
-                    b.Property<string>("AppointmentNote")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("appointment_note");
-
-                    b.Property<string>("ApprovalNote")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("approval_note");
-
-                    b.Property<string>("ApprovalStatus")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("approval_status");
-
-                    b.Property<DateTimeOffset?>("ApprovedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("approved_at");
-
-                    b.Property<long?>("ApprovedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("approved_by_user_id");
-
-                    b.Property<DateTimeOffset?>("CompletedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("completed_at");
-
-                    b.Property<long?>("CompletedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("completed_by_user_id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("currency");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("FinalDescription")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)")
-                        .HasColumnName("final_description");
-
-                    b.Property<string>("InvoiceNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("invoice_number");
-
-                    b.Property<int?>("MileageAtService")
-                        .HasColumnType("int")
-                        .HasColumnName("mileage_at_service");
-
-                    b.Property<string>("PaidStatus")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("paid_status");
-
-                    b.Property<string>("Priority")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("priority");
-
-                    b.Property<DateTimeOffset>("RequestedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("requested_at");
-
-                    b.Property<long>("RequestedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("requested_by_user_id");
-
-                    b.Property<DateTimeOffset?>("ReturnedFromServiceAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("returned_from_service_at");
-
-                    b.Property<DateTimeOffset?>("SentToServiceAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("sent_to_service_at");
-
-                    b.Property<string>("ServiceProviderName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("service_provider_name");
-
-                    b.Property<string>("ServiceProviderPhone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("service_provider_phone");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("status");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)")
-                        .HasColumnName("title");
-
-                    b.Property<decimal?>("TotalCost")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("total_cost");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("updated_at");
-
-                    b.Property<long>("VehicleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("vehicle_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppointmentAt");
-
-                    b.HasIndex("ApprovalStatus");
-
-                    b.HasIndex("ApprovedByUserId");
-
-                    b.HasIndex("CompletedByUserId");
-
-                    b.HasIndex("Priority");
-
-                    b.HasIndex("RequestedAt");
-
-                    b.HasIndex("RequestedByUserId");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("service_orders", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_service_order_approval_consistency", "(approved_at IS NULL AND approved_by_user_id IS NULL) OR (approved_at IS NOT NULL AND approved_by_user_id IS NOT NULL)");
-
-                            t.HasCheckConstraint("ck_service_order_completion_consistency", "(completed_at IS NULL AND completed_by_user_id IS NULL) OR (completed_at IS NOT NULL AND completed_by_user_id IS NOT NULL)");
-
-                            t.HasCheckConstraint("ck_service_order_mileage_nonneg", "mileage_at_service IS NULL OR mileage_at_service >= 0");
-
-                            t.HasCheckConstraint("ck_service_order_service_dates", "returned_from_service_at IS NULL OR sent_to_service_at IS NULL OR returned_from_service_at >= sent_to_service_at");
-
-                            t.HasCheckConstraint("ck_service_order_total_cost_nonneg", "total_cost IS NULL OR total_cost >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.ServiceOrderHistory", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTimeOffset>("ChangedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("changed_at");
-
-                    b.Property<long>("ChangedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("changed_by_user_id");
-
-                    b.Property<string>("NewStatus")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("new_status");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<string>("OldStatus")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("old_status");
-
-                    b.Property<long>("ServiceOrderId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("service_order_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChangedAt");
-
-                    b.HasIndex("ChangedByUserId");
-
-                    b.HasIndex("ServiceOrderId");
-
-                    b.HasIndex("ServiceOrderId", "ChangedAt");
-
-                    b.ToTable("service_order_history", (string)null);
-                });
-
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", b =>
                 {
                     b.Property<long>("Id")
@@ -3926,13 +1923,24 @@ namespace PowerPulseRestAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Caption")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("caption");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<int?>("CurrentMileage")
+                    b.Property<int>("CurrentMileage")
                         .HasColumnType("int")
                         .HasColumnName("current_mileage");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<DateOnly?>("LastServiceAt")
                         .HasColumnType("date")
@@ -3943,20 +1951,16 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnName("last_service_mileage");
 
                     b.Property<string>("Make")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("make");
 
                     b.Property<string>("Model")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("model");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("name");
 
                     b.Property<string>("PlateNumber")
                         .IsRequired()
@@ -3974,12 +1978,19 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)")
+                        .HasColumnName("url");
+
                     b.Property<string>("Vin")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("vin");
 
-                    b.Property<int?>("Year")
+                    b.Property<int>("Year")
                         .HasColumnType("int")
                         .HasColumnName("year");
 
@@ -3997,10 +2008,6 @@ namespace PowerPulseRestAPI.Migrations
                     b.ToTable("vehicles", null, t =>
                         {
                             t.HasCheckConstraint("ck_vehicle_last_service_mileage_nonneg", "last_service_mileage IS NULL OR last_service_mileage >= 0");
-
-                            t.HasCheckConstraint("ck_vehicle_mileage_nonneg", "current_mileage IS NULL OR current_mileage >= 0");
-
-                            t.HasCheckConstraint("ck_vehicle_year_range", "year IS NULL OR (year >= 1900 AND year <= 2100)");
                         });
                 });
 
@@ -4040,9 +2047,13 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
+                    b.HasIndex("EmployeeId")
+                        .IsUnique()
+                        .HasFilter("[returned_at] IS NULL");
 
-                    b.HasIndex("VehicleId");
+                    b.HasIndex("VehicleId")
+                        .IsUnique()
+                        .HasFilter("[returned_at] IS NULL");
 
                     b.HasIndex("VehicleId", "AssignedAt");
 
@@ -4104,42 +2115,7 @@ namespace PowerPulseRestAPI.Migrations
                     b.ToTable("vehicle_issues", (string)null);
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.VehicleIssueAttachment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Caption")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("caption");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("url");
-
-                    b.Property<long>("VehicleIssueId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("vehicle_issue_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VehicleIssueId");
-
-                    b.ToTable("vehicle_issue_attachments", (string)null);
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.VehicleMileageRecord", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.WorkSessionModels.WorkSession", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -4152,158 +2128,95 @@ namespace PowerPulseRestAPI.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at");
 
-                    b.Property<long>("CreatedByUserId")
+                    b.Property<long>("EmployeeId")
                         .HasColumnType("bigint")
-                        .HasColumnName("created_by_user_id");
+                        .HasColumnName("employee_id");
 
-                    b.Property<int>("Mileage")
-                        .HasColumnType("int")
-                        .HasColumnName("mileage");
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("ended_at");
+
+                    b.Property<long?>("InvoiceId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<DateTimeOffset?>("InvoicedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("invoiced_at");
 
                     b.Property<string>("Note")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)")
                         .HasColumnName("note");
 
-                    b.Property<DateTimeOffset>("RecordedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("recorded_at");
+                    b.Property<long>("ProjectId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("project_id");
 
-                    b.Property<string>("SourceType")
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
-                        .HasColumnName("source_type");
+                        .HasColumnName("status");
 
-                    b.Property<long>("VehicleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("vehicle_id");
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedByUserId");
+                    b.HasIndex("EmployeeId");
 
-                    b.HasIndex("RecordedAt");
+                    b.HasIndex("InvoiceId");
 
-                    b.HasIndex("VehicleId");
+                    b.HasIndex("InvoicedAt");
 
-                    b.HasIndex("VehicleId", "RecordedAt");
+                    b.HasIndex("ProjectId");
 
-                    b.ToTable("vehicle_mileage_records", null, t =>
+                    b.HasIndex("StartedAt");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("EmployeeId", "ProjectId", "StartedAt");
+
+                    b.ToTable("work_sessions", null, t =>
                         {
-                            t.HasCheckConstraint("ck_vehicle_mileage_record_nonneg", "mileage >= 0");
+                            t.HasCheckConstraint("ck_work_session_end_after_start", "ended_at IS NULL OR ended_at >= started_at");
                         });
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.AddressModels.EntityAddress", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.CustomerModels.Customer", b =>
                 {
                     b.HasOne("PowerPulseRestAPI.Data.Models.AddressModels.Address", "Address")
-                        .WithMany("EntityLinks")
+                        .WithMany()
                         .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PowerPulseRestAPI.Data.Models.PersonModels.Person", "ContactPerson")
+                        .WithMany()
+                        .HasForeignKey("ContactPersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Address");
-                });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.CustomerModels.CustomerContact", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.CustomerModels.Customer", "Customer")
-                        .WithMany("Contacts")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.CustomerModels.CustomerNote", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
-                        .WithMany("CustomerNotes")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.CustomerModels.Customer", "Customer")
-                        .WithMany("Notes")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("Customer");
+                    b.Navigation("ContactPerson");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.Person", "Person")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.PersonModels.Person", "Person")
                         .WithOne("Employee")
                         .HasForeignKey("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Person");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.EmployeeBankAccount", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "Employee")
-                        .WithMany("BankAccounts")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.EmployeeCompensation", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "Employee")
-                        .WithMany("Compensations")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.LeaveRequest", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ApprovedByUser")
-                        .WithMany()
-                        .HasForeignKey("ApprovedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "RequestedByUser")
-                        .WithMany()
-                        .HasForeignKey("RequestedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ApprovedByUser");
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("RequestedByUser");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.BillingRate", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
-                        .WithMany("BillingRates")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.Invoice", b =>
@@ -4320,64 +2233,47 @@ namespace PowerPulseRestAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "IssuedByUser")
-                        .WithMany("InvoicesIssued")
-                        .HasForeignKey("IssuedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
                         .WithMany("Invoices")
                         .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Customer");
 
-                    b.Navigation("IssuedByUser");
-
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceHistory", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceLaborItem", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ChangedByUser")
-                        .WithMany("InvoiceChanges")
-                        .HasForeignKey("ChangedByUserId")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.InvoiceModels.Invoice", "Invoice")
+                        .WithOne("LaborItem")
+                        .HasForeignKey("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceLaborItem", "InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceMaterialItem", b =>
+                {
+                    b.HasOne("PowerPulseRestAPI.Data.Models.InvoiceModels.Invoice", "Invoice")
+                        .WithMany("MaterialItems")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PowerPulseRestAPI.Data.Models.MaterialsModels.Material", "Material")
+                        .WithMany("InvoiceMaterialItems")
+                        .HasForeignKey("MaterialId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.InvoiceModels.Invoice", "Invoice")
-                        .WithMany("History")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChangedByUser");
-
                     b.Navigation("Invoice");
-                });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceItem", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.InvoiceModels.Invoice", "Invoice")
-                        .WithMany("Items")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Invoice");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceItemSource", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceItem", "InvoiceItem")
-                        .WithMany("Sources")
-                        .HasForeignKey("InvoiceItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InvoiceItem");
+                    b.Navigation("Material");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.KnowledgeModels.KnowledgeArticle", b =>
@@ -4393,17 +2289,9 @@ namespace PowerPulseRestAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "UpdatedByUser")
-                        .WithMany("KnowledgeArticlesUpdated")
-                        .HasForeignKey("UpdatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Category");
 
                     b.Navigation("CreatedByUser");
-
-                    b.Navigation("UpdatedByUser");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.KnowledgeModels.KnowledgeArticleAttachment", b =>
@@ -4455,19 +2343,9 @@ namespace PowerPulseRestAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.KnowledgeModels.KnowledgeCategory", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialsModels.Material", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.KnowledgeModels.KnowledgeCategory", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.Material", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.MaterialCategory", "Category")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.MaterialsModels.MaterialCategory", "Category")
                         .WithMany("Materials")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -4476,28 +2354,7 @@ namespace PowerPulseRestAPI.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialCategory", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.MaterialCategory", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialImage", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("Images")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Material");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialMovement", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialsModels.MaterialMovement", b =>
                 {
                     b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
                         .WithMany("CreatedMaterialMovements")
@@ -4505,125 +2362,69 @@ namespace PowerPulseRestAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", "FromStorageLocation")
-                        .WithMany("MovementsFrom")
-                        .HasForeignKey("FromStorageLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.HasOne("PowerPulseRestAPI.Data.Models.InvoiceModels.Invoice", "Invoice")
+                        .WithMany("MaterialMovements")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.MaterialsModels.Material", "Material")
                         .WithMany("Movements")
                         .HasForeignKey("MaterialId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "ToEmployee")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
                         .WithMany("MaterialMovements")
-                        .HasForeignKey("ToEmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "ToProject")
-                        .WithMany("MaterialMovements")
-                        .HasForeignKey("ToProjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", "ToStorageLocation")
-                        .WithMany("MovementsTo")
-                        .HasForeignKey("ToStorageLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", "ToVehicle")
-                        .WithMany("MaterialMovements")
-                        .HasForeignKey("ToVehicleId")
+                        .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreatedByUser");
 
-                    b.Navigation("FromStorageLocation");
-
-                    b.Navigation("Material");
-
-                    b.Navigation("ToEmployee");
-
-                    b.Navigation("ToProject");
-
-                    b.Navigation("ToStorageLocation");
-
-                    b.Navigation("ToVehicle");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialPriceList", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("PriceLists")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Material");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialProjectBalance", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("ProjectBalances")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
-                        .WithMany("MaterialBalances")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Navigation("Invoice");
 
                     b.Navigation("Material");
 
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialStock", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PersonModels.Person", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("Stocks")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("PowerPulseRestAPI.Data.Models.AddressModels.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", "StorageLocation")
-                        .WithMany("MaterialStocks")
-                        .HasForeignKey("StorageLocationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Material");
-
-                    b.Navigation("StorageLocation");
+                    b.Navigation("Address");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialVehicleBalance", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PersonModels.PersonIdentifier", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("VehicleBalances")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("PowerPulseRestAPI.Data.Models.PersonModels.Person", "Person")
+                        .WithMany("Identifiers")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", "Vehicle")
-                        .WithMany("MaterialBalances")
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Material");
-
-                    b.Navigation("Vehicle");
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.Project", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.AddressModels.Address", "Address")
+                        .WithOne()
+                        .HasForeignKey("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "AddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "CreatedByEmployee")
                         .WithMany()
-                        .HasForeignKey("CreatedByUserId")
+                        .HasForeignKey("CreatedByEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PowerPulseRestAPI.Data.Models.CustomerModels.Customer", "Customer")
+                        .WithMany("Projects")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -4632,7 +2433,11 @@ namespace PowerPulseRestAPI.Migrations
                         .HasForeignKey("ResponsibleEmployeeId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("CreatedByUser");
+                    b.Navigation("Address");
+
+                    b.Navigation("CreatedByEmployee");
+
+                    b.Navigation("Customer");
 
                     b.Navigation("ResponsibleEmployee");
                 });
@@ -4658,9 +2463,9 @@ namespace PowerPulseRestAPI.Migrations
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectAttachment", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "CreatedByEmployee")
                         .WithMany()
-                        .HasForeignKey("CreatedByUserId")
+                        .HasForeignKey("CreatedByEmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -4670,61 +2475,16 @@ namespace PowerPulseRestAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.WorkSession", "WorkSession")
-                        .WithMany()
-                        .HasForeignKey("WorkSessionId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("WorkSession");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectCustomer", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.CustomerModels.Customer", "Customer")
-                        .WithMany("ProjectCustomers")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
-                        .WithMany("ProjectCustomers")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectCustomerContact", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.CustomerModels.CustomerContact", "CustomerContact")
-                        .WithMany("ProjectLinks")
-                        .HasForeignKey("CustomerContactId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
-                        .WithMany("CustomerContacts")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CustomerContact");
+                    b.Navigation("CreatedByEmployee");
 
                     b.Navigation("Project");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectNote", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "CreatedByEmployee")
+                        .WithMany("ProjectNotes")
+                        .HasForeignKey("CreatedByEmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -4734,16 +2494,9 @@ namespace PowerPulseRestAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.WorkSession", "WorkSession")
-                        .WithMany()
-                        .HasForeignKey("WorkSessionId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("CreatedByUser");
+                    b.Navigation("CreatedByEmployee");
 
                     b.Navigation("Project");
-
-                    b.Navigation("WorkSession");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectTask", b =>
@@ -4751,11 +2504,11 @@ namespace PowerPulseRestAPI.Migrations
                     b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "AssignedToEmployee")
                         .WithMany("AssignedTasks")
                         .HasForeignKey("AssignedToEmployeeId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "CreatedByEmployee")
                         .WithMany()
-                        .HasForeignKey("CreatedByUserId")
+                        .HasForeignKey("CreatedByEmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -4767,268 +2520,20 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.Navigation("AssignedToEmployee");
 
-                    b.Navigation("CreatedByUser");
+                    b.Navigation("CreatedByEmployee");
 
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.TaskAttachment", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockModels.LowStockNote", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectTask", "Task")
-                        .WithMany("Attachments")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.TaskUpdate", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
-                        .WithMany("TaskUpdates")
-                        .HasForeignKey("CreatedByUserId")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "CreatedByEmployee")
+                        .WithMany("LowStockNotes")
+                        .HasForeignKey("CreatedByEmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectTask", "Task")
-                        .WithMany("Updates")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("Task");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PurchaseReqModels.PurchaseRequest", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ApprovedByUser")
-                        .WithMany("PurchaseRequestsApproved")
-                        .HasForeignKey("ApprovedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
-                        .WithMany("PurchaseRequests")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "RequestedByUser")
-                        .WithMany("PurchaseRequestsCreated")
-                        .HasForeignKey("RequestedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ApprovedByUser");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("RequestedByUser");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PurchaseReqModels.PurchaseRequestItem", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("PurchaseRequestItems")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.PurchaseReqModels.PurchaseRequest", "PurchaseRequest")
-                        .WithMany("Items")
-                        .HasForeignKey("PurchaseRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.Tool", "Tool")
-                        .WithMany("PurchaseRequestItems")
-                        .HasForeignKey("ToolId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Material");
-
-                    b.Navigation("PurchaseRequest");
-
-                    b.Navigation("Tool");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequest", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ApprovedByUser")
-                        .WithMany("StockRequestsApproved")
-                        .HasForeignKey("ApprovedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "Employee")
-                        .WithMany("StockRequests")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
-                        .WithMany("StockRequests")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "RequestedByUser")
-                        .WithMany("StockRequestsRequested")
-                        .HasForeignKey("RequestedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", "Vehicle")
-                        .WithMany("StockRequests")
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ApprovedByUser");
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("RequestedByUser");
-
-                    b.Navigation("Vehicle");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestFulfillment", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "IssuedByUser")
-                        .WithMany("StockRequestFulfillmentsIssued")
-                        .HasForeignKey("IssuedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequest", "StockRequest")
-                        .WithMany("Fulfillments")
-                        .HasForeignKey("StockRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("IssuedByUser");
-
-                    b.Navigation("StockRequest");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestFulfillmentItem", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", "FromStorageLocation")
-                        .WithMany("StockRequestFulfillmentItemsFromHere")
-                        .HasForeignKey("FromStorageLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestFulfillment", "Fulfillment")
-                        .WithMany("Items")
-                        .HasForeignKey("FulfillmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("StockRequestFulfillmentItems")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", "ToolAsset")
-                        .WithMany("StockRequestFulfillmentItems")
-                        .HasForeignKey("ToolAssetId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("FromStorageLocation");
-
-                    b.Navigation("Fulfillment");
-
-                    b.Navigation("Material");
-
-                    b.Navigation("ToolAsset");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestHistory", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ChangedByUser")
-                        .WithMany("StockRequestChanges")
-                        .HasForeignKey("ChangedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequest", "StockRequest")
-                        .WithMany("History")
-                        .HasForeignKey("StockRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChangedByUser");
-
-                    b.Navigation("StockRequest");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestItem", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("StockRequestItems")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequest", "StockRequest")
-                        .WithMany("Items")
-                        .HasForeignKey("StockRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.Tool", "Tool")
-                        .WithMany("StockRequestItems")
-                        .HasForeignKey("ToolId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Material");
-
-                    b.Navigation("StockRequest");
-
-                    b.Navigation("Tool");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestReservation", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.Material", "Material")
-                        .WithMany("StockRequestReservations")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ReservedByUser")
-                        .WithMany("StockRequestReservations")
-                        .HasForeignKey("ReservedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestItem", "StockRequestItem")
-                        .WithMany("Reservations")
-                        .HasForeignKey("StockRequestItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", "StorageLocation")
-                        .WithMany("StockRequestReservationsHere")
-                        .HasForeignKey("StorageLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", null)
-                        .WithMany("StockRequestReservations")
-                        .HasForeignKey("StorageLocationId1");
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", "ToolAsset")
-                        .WithMany("StockRequestReservations")
-                        .HasForeignKey("ToolAssetId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Material");
-
-                    b.Navigation("ReservedByUser");
-
-                    b.Navigation("StockRequestItem");
-
-                    b.Navigation("StorageLocation");
-
-                    b.Navigation("ToolAsset");
+                    b.Navigation("CreatedByEmployee");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.Tool", b =>
@@ -5036,39 +2541,9 @@ namespace PowerPulseRestAPI.Migrations
                     b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.ToolCategory", "Category")
                         .WithMany("Tools")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.Tool", "Tool")
-                        .WithMany("Assets")
-                        .HasForeignKey("ToolId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Tool");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAssetStock", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", "StorageLocation")
-                        .WithMany("ToolAssetStocks")
-                        .HasForeignKey("StorageLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", "ToolAsset")
-                        .WithOne("Stock")
-                        .HasForeignKey("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAssetStock", "ToolAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("StorageLocation");
-
-                    b.Navigation("ToolAsset");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAssignment", b =>
@@ -5079,43 +2554,23 @@ namespace PowerPulseRestAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "ToEmployee")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "Employee")
                         .WithMany("ToolAssignments")
-                        .HasForeignKey("ToEmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "ToProject")
-                        .WithMany("ToolAssignments")
-                        .HasForeignKey("ToProjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", "ToStorageLocation")
-                        .WithMany("ToolAssignmentsToHere")
-                        .HasForeignKey("ToStorageLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", "ToVehicle")
-                        .WithMany("ToolAssignments")
-                        .HasForeignKey("ToVehicleId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", "ToolAsset")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.Tool", "Tool")
                         .WithMany("Assignments")
-                        .HasForeignKey("ToolAssetId")
+                        .HasForeignKey("ToolId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("CreatedByUser");
 
-                    b.Navigation("ToEmployee");
+                    b.Navigation("Employee");
 
-                    b.Navigation("ToProject");
-
-                    b.Navigation("ToStorageLocation");
-
-                    b.Navigation("ToVehicle");
-
-                    b.Navigation("ToolAsset");
+                    b.Navigation("Tool");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolCategory", b =>
@@ -5128,244 +2583,23 @@ namespace PowerPulseRestAPI.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolImage", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.Tool", "Tool")
-                        .WithMany("Images")
-                        .HasForeignKey("ToolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Tool");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolIssue", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ReportedByUser")
-                        .WithMany("ReportedToolIssues")
-                        .HasForeignKey("ReportedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", "ToolAsset")
-                        .WithMany("Issues")
-                        .HasForeignKey("ToolAssetId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ReportedByUser");
-
-                    b.Navigation("ToolAsset");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolIssueAttachment", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.ToolIssue", "ToolIssue")
-                        .WithMany("Attachments")
-                        .HasForeignKey("ToolIssueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ToolIssue");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.ActivityLog", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
-                        .WithMany("ActivityLogs")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.Notification", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
-                        .WithMany("CreatedNotifications")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "RelatedProject")
-                        .WithMany("Notifications")
-                        .HasForeignKey("RelatedProjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.PurchaseReqModels.PurchaseRequest", "RelatedPurchaseRequest")
-                        .WithMany("Notifications")
-                        .HasForeignKey("RelatedPurchaseRequestId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectTask", "RelatedTask")
-                        .WithMany("Notifications")
-                        .HasForeignKey("RelatedTaskId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", "RelatedToolAsset")
-                        .WithMany("Notifications")
-                        .HasForeignKey("RelatedToolAssetId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", "RelatedVehicle")
-                        .WithMany("Notifications")
-                        .HasForeignKey("RelatedVehicleId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "User")
-                        .WithMany("Notifications")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("RelatedProject");
-
-                    b.Navigation("RelatedPurchaseRequest");
-
-                    b.Navigation("RelatedTask");
-
-                    b.Navigation("RelatedToolAsset");
-
-                    b.Navigation("RelatedVehicle");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.Person", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "User")
-                        .WithOne("Person")
-                        .HasForeignKey("PowerPulseRestAPI.Data.Models.UsersModels.Person", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.PersonIdentifier", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.Person", "Person")
-                        .WithMany()
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Person");
-                });
-
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.User", b =>
                 {
+                    b.HasOne("PowerPulseRestAPI.Data.Models.PersonModels.Person", "Person")
+                        .WithOne("User")
+                        .HasForeignKey("PowerPulseRestAPI.Data.Models.UsersModels.User", "PersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.Role", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.Role", null)
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId1");
+                    b.Navigation("Person");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.WorkSession", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "Employee")
-                        .WithMany("WorkSessions")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
-                        .WithMany("WorkSessions")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "StartedByUser")
-                        .WithMany("StartedWorkSessions")
-                        .HasForeignKey("StartedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("StartedByUser");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.WorkSessionEvent", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
-                        .WithMany("WorkSessionEvents")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.WorkSession", "WorkSession")
-                        .WithMany("Events")
-                        .HasForeignKey("WorkSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("WorkSession");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.ServiceOrder", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ApprovedByUser")
-                        .WithMany("ServiceOrdersApproved")
-                        .HasForeignKey("ApprovedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CompletedByUser")
-                        .WithMany("ServiceOrdersCompleted")
-                        .HasForeignKey("CompletedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "RequestedByUser")
-                        .WithMany("ServiceOrdersRequested")
-                        .HasForeignKey("RequestedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", "Vehicle")
-                        .WithMany("ServiceOrders")
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ApprovedByUser");
-
-                    b.Navigation("CompletedByUser");
-
-                    b.Navigation("RequestedByUser");
-
-                    b.Navigation("Vehicle");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.ServiceOrderHistory", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "ChangedByUser")
-                        .WithMany("ServiceOrderChanges")
-                        .HasForeignKey("ChangedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.ServiceOrder", "ServiceOrder")
-                        .WithMany("History")
-                        .HasForeignKey("ServiceOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChangedByUser");
-
-                    b.Navigation("ServiceOrder");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.VehicleAssignment", b =>
@@ -5398,7 +2632,7 @@ namespace PowerPulseRestAPI.Migrations
                     b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", "Vehicle")
                         .WithMany("Issues")
                         .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ReportedByUser");
@@ -5406,70 +2640,48 @@ namespace PowerPulseRestAPI.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.VehicleIssueAttachment", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.WorkSessionModels.WorkSession", b =>
                 {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.VehicleIssue", "VehicleIssue")
-                        .WithMany("Attachments")
-                        .HasForeignKey("VehicleIssueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("VehicleIssue");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.VehicleMileageRecord", b =>
-                {
-                    b.HasOne("PowerPulseRestAPI.Data.Models.UsersModels.User", "CreatedByUser")
-                        .WithMany("VehicleMileageRecords")
-                        .HasForeignKey("CreatedByUserId")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", "Employee")
+                        .WithMany("WorkSessions")
+                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", "Vehicle")
-                        .WithMany("MileageRecords")
-                        .HasForeignKey("VehicleId")
+                    b.HasOne("PowerPulseRestAPI.Data.Models.InvoiceModels.Invoice", "Invoice")
+                        .WithMany("WorkSessions")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PowerPulseRestAPI.Data.Models.ProjectModels.Project", "Project")
+                        .WithMany("WorkSessions")
+                        .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("CreatedByUser");
+                    b.Navigation("Employee");
 
-                    b.Navigation("Vehicle");
-                });
+                    b.Navigation("Invoice");
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.AddressModels.Address", b =>
-                {
-                    b.Navigation("EntityLinks");
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.CustomerModels.Customer", b =>
                 {
-                    b.Navigation("Contacts");
-
                     b.Navigation("Invoices");
 
-                    b.Navigation("Notes");
-
-                    b.Navigation("ProjectCustomers");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.CustomerModels.CustomerContact", b =>
-                {
-                    b.Navigation("ProjectLinks");
+                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", b =>
                 {
                     b.Navigation("AssignedTasks");
 
-                    b.Navigation("BankAccounts");
-
-                    b.Navigation("Compensations");
-
-                    b.Navigation("MaterialMovements");
+                    b.Navigation("LowStockNotes");
 
                     b.Navigation("ProjectAccesses");
 
-                    b.Navigation("StockRequests");
+                    b.Navigation("ProjectNotes");
 
                     b.Navigation("ToolAssignments");
 
@@ -5480,14 +2692,13 @@ namespace PowerPulseRestAPI.Migrations
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.Invoice", b =>
                 {
-                    b.Navigation("History");
+                    b.Navigation("LaborItem");
 
-                    b.Navigation("Items");
-                });
+                    b.Navigation("MaterialItems");
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.InvoiceModels.InvoiceItem", b =>
-                {
-                    b.Navigation("Sources");
+                    b.Navigation("MaterialMovements");
+
+                    b.Navigation("WorkSessions");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.KnowledgeModels.KnowledgeArticle", b =>
@@ -5502,38 +2713,27 @@ namespace PowerPulseRestAPI.Migrations
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.KnowledgeModels.KnowledgeCategory", b =>
                 {
                     b.Navigation("Articles");
-
-                    b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.Material", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialsModels.Material", b =>
                 {
-                    b.Navigation("Images");
+                    b.Navigation("InvoiceMaterialItems");
 
                     b.Navigation("Movements");
-
-                    b.Navigation("PriceLists");
-
-                    b.Navigation("ProjectBalances");
-
-                    b.Navigation("PurchaseRequestItems");
-
-                    b.Navigation("StockRequestFulfillmentItems");
-
-                    b.Navigation("StockRequestItems");
-
-                    b.Navigation("StockRequestReservations");
-
-                    b.Navigation("Stocks");
-
-                    b.Navigation("VehicleBalances");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialCategory", b =>
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.MaterialsModels.MaterialCategory", b =>
                 {
-                    b.Navigation("Children");
-
                     b.Navigation("Materials");
+                });
+
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PersonModels.Person", b =>
+                {
+                    b.Navigation("Employee");
+
+                    b.Navigation("Identifiers");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.Project", b =>
@@ -5542,111 +2742,20 @@ namespace PowerPulseRestAPI.Migrations
 
                     b.Navigation("Attachments");
 
-                    b.Navigation("BillingRates");
-
-                    b.Navigation("CustomerContacts");
-
                     b.Navigation("Invoices");
-
-                    b.Navigation("MaterialBalances");
 
                     b.Navigation("MaterialMovements");
 
                     b.Navigation("Notes");
 
-                    b.Navigation("Notifications");
-
-                    b.Navigation("ProjectCustomers");
-
-                    b.Navigation("PurchaseRequests");
-
-                    b.Navigation("StockRequests");
-
                     b.Navigation("Tasks");
-
-                    b.Navigation("ToolAssignments");
 
                     b.Navigation("WorkSessions");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ProjectModels.ProjectTask", b =>
-                {
-                    b.Navigation("Attachments");
-
-                    b.Navigation("Notifications");
-
-                    b.Navigation("Updates");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.PurchaseReqModels.PurchaseRequest", b =>
-                {
-                    b.Navigation("Items");
-
-                    b.Navigation("Notifications");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequest", b =>
-                {
-                    b.Navigation("Fulfillments");
-
-                    b.Navigation("History");
-
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestFulfillment", b =>
-                {
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StockRequestItem", b =>
-                {
-                    b.Navigation("Reservations");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.StockRequestModels.StorageLocation", b =>
-                {
-                    b.Navigation("MaterialStocks");
-
-                    b.Navigation("MovementsFrom");
-
-                    b.Navigation("MovementsTo");
-
-                    b.Navigation("StockRequestFulfillmentItemsFromHere");
-
-                    b.Navigation("StockRequestReservations");
-
-                    b.Navigation("StockRequestReservationsHere");
-
-                    b.Navigation("ToolAssetStocks");
-
-                    b.Navigation("ToolAssignmentsToHere");
-                });
-
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.Tool", b =>
                 {
-                    b.Navigation("Assets");
-
-                    b.Navigation("Images");
-
-                    b.Navigation("PurchaseRequestItems");
-
-                    b.Navigation("StockRequestItems");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolAsset", b =>
-                {
                     b.Navigation("Assignments");
-
-                    b.Navigation("Issues");
-
-                    b.Navigation("Notifications");
-
-                    b.Navigation("Stock");
-
-                    b.Navigation("StockRequestFulfillmentItems");
-
-                    b.Navigation("StockRequestReservations");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolCategory", b =>
@@ -5656,16 +2765,6 @@ namespace PowerPulseRestAPI.Migrations
                     b.Navigation("Tools");
                 });
 
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.ToolsModels.ToolIssue", b =>
-                {
-                    b.Navigation("Attachments");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.Person", b =>
-                {
-                    b.Navigation("Employee");
-                });
-
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.Role", b =>
                 {
                     b.Navigation("Users");
@@ -5673,77 +2772,19 @@ namespace PowerPulseRestAPI.Migrations
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.User", b =>
                 {
-                    b.Navigation("ActivityLogs");
-
                     b.Navigation("CreatedMaterialMovements");
-
-                    b.Navigation("CreatedNotifications");
 
                     b.Navigation("CreatedToolAssignments");
 
-                    b.Navigation("CustomerNotes");
-
-                    b.Navigation("InvoiceChanges");
-
                     b.Navigation("InvoicesCreated");
 
-                    b.Navigation("InvoicesIssued");
-
                     b.Navigation("KnowledgeArticlesCreated");
-
-                    b.Navigation("KnowledgeArticlesUpdated");
 
                     b.Navigation("KnowledgeFavorites");
 
                     b.Navigation("KnowledgeReads");
 
-                    b.Navigation("Notifications");
-
-                    b.Navigation("Person");
-
-                    b.Navigation("PurchaseRequestsApproved");
-
-                    b.Navigation("PurchaseRequestsCreated");
-
-                    b.Navigation("ReportedToolIssues");
-
-                    b.Navigation("ServiceOrderChanges");
-
-                    b.Navigation("ServiceOrdersApproved");
-
-                    b.Navigation("ServiceOrdersCompleted");
-
-                    b.Navigation("ServiceOrdersRequested");
-
-                    b.Navigation("StartedWorkSessions");
-
-                    b.Navigation("StockRequestChanges");
-
-                    b.Navigation("StockRequestFulfillmentsIssued");
-
-                    b.Navigation("StockRequestReservations");
-
-                    b.Navigation("StockRequestsApproved");
-
-                    b.Navigation("StockRequestsRequested");
-
-                    b.Navigation("TaskUpdates");
-
                     b.Navigation("VehicleIssuesReported");
-
-                    b.Navigation("VehicleMileageRecords");
-
-                    b.Navigation("WorkSessionEvents");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.UsersModels.WorkSession", b =>
-                {
-                    b.Navigation("Events");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.ServiceOrder", b =>
-                {
-                    b.Navigation("History");
                 });
 
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.Vehicle", b =>
@@ -5751,25 +2792,6 @@ namespace PowerPulseRestAPI.Migrations
                     b.Navigation("Assignments");
 
                     b.Navigation("Issues");
-
-                    b.Navigation("MaterialBalances");
-
-                    b.Navigation("MaterialMovements");
-
-                    b.Navigation("MileageRecords");
-
-                    b.Navigation("Notifications");
-
-                    b.Navigation("ServiceOrders");
-
-                    b.Navigation("StockRequests");
-
-                    b.Navigation("ToolAssignments");
-                });
-
-            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.VehicleModels.VehicleIssue", b =>
-                {
-                    b.Navigation("Attachments");
                 });
 #pragma warning restore 612, 618
         }

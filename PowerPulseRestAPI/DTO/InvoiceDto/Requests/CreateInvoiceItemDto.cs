@@ -8,7 +8,8 @@ namespace PowerPulseRestAPI.DTO.InvoiceDto.Requests
 
         public long? MaterialId { get; set; }
 
-        public decimal UnitPrice { get; set; }
+        public decimal? UnitPrice { get; set; }
         public decimal TaxRate { get; set; }
+        
     }
 }

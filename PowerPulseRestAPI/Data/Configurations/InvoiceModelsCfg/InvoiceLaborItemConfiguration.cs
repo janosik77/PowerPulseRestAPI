@@ -6,47 +6,62 @@ namespace PowerPulseRestAPI.Data.Configurations.InvoiceConfigurations
 {
     public class InvoiceLaborItemConfiguration : IEntityTypeConfiguration<InvoiceLaborItem>
     {
-        public void Configure(EntityTypeBuilder<InvoiceLaborItem> builder)
+        public void Configure(EntityTypeBuilder<InvoiceLaborItem> b)
         {
-            builder.ToTable("InvoiceLaborItems");
+            b.ToTable("invoice_labor_items");
 
-            builder.HasKey(x => x.Id);
+            b.HasKey(x => x.Id);
 
-            builder.Property(x => x.Quantity)
+            b.Property(x => x.Id)
+                .HasColumnName("id");
+
+            b.Property(x => x.InvoiceId)
+                .HasColumnName("invoice_id")
+                .IsRequired();
+
+            b.Property(x => x.Quantity)
+                .HasColumnName("quantity")
                 .HasPrecision(18, 2)
                 .IsRequired();
 
-            builder.Property(x => x.Unit)
+            b.Property(x => x.Unit)
+                .HasColumnName("unit")
                 .HasMaxLength(20)
                 .IsRequired();
 
-            builder.Property(x => x.UnitPrice)
+            b.Property(x => x.UnitPrice)
+                .HasColumnName("unit_price")
                 .HasPrecision(18, 2)
                 .IsRequired();
 
-            builder.Property(x => x.TaxRate)
+            b.Property(x => x.TaxRate)
+                .HasColumnName("tax_rate")
                 .HasPrecision(5, 2)
                 .IsRequired();
 
-            builder.Property(x => x.LineSubtotal)
+            b.Property(x => x.LineSubtotal)
+                .HasColumnName("line_subtotal")
                 .HasPrecision(18, 2)
                 .IsRequired();
 
-            builder.Property(x => x.LineTax)
+            b.Property(x => x.LineTax)
+                .HasColumnName("line_tax")
                 .HasPrecision(18, 2)
                 .IsRequired();
 
-            builder.Property(x => x.LineTotal)
+            b.Property(x => x.LineTotal)
+                .HasColumnName("line_total")
                 .HasPrecision(18, 2)
                 .IsRequired();
 
-            builder.Property(x => x.CreatedAt)
+            b.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
                 .IsRequired();
 
-            builder.HasIndex(x => x.InvoiceId)
+            b.HasIndex(x => x.InvoiceId)
                 .IsUnique();
 
-            builder.HasOne(x => x.Invoice)
+            b.HasOne(x => x.Invoice)
                 .WithOne(x => x.LaborItem)
                 .HasForeignKey<InvoiceLaborItem>(x => x.InvoiceId)
                 .OnDelete(DeleteBehavior.Cascade);

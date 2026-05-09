@@ -1,5 +1,4 @@
-﻿using PowerPulseRestAPI.Data.Enums;
-
+﻿
 namespace PowerPulseRestAPI.Data.Models.InvoiceModels
 {
 
@@ -13,7 +12,6 @@ namespace PowerPulseRestAPI.Data.Models.InvoiceModels
         public string Unit { get; set; } = "h";
         public decimal UnitPrice { get; set; }
         public decimal TaxRate { get; set; }
-
         public decimal LineSubtotal { get; set; }
         public decimal LineTax { get; set; }
         public decimal LineTotal { get; set; }

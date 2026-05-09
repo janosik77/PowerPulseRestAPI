@@ -37,7 +37,7 @@ public class VehicleIssueConfiguration : IEntityTypeConfiguration<VehicleIssue>
         b.HasOne(x => x.ReportedByUser)
             .WithMany(u => u.VehicleIssuesReported)
             .HasForeignKey(x => x.ReportedByUserId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         b.HasIndex(x => x.VehicleId);
         b.HasIndex(x => x.Status);

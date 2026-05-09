@@ -1,5 +1,4 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
-using PowerPulseRestAPI.Data.Models.UsersModels;
 
 namespace PowerPulseRestAPI.Data.Models.VehicleModels
 {
@@ -21,10 +20,10 @@ namespace PowerPulseRestAPI.Data.Models.VehicleModels
         public int? LastServiceMileage { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
+        public bool IsDeleted { get; set; }
 
         public List<VehicleAssignment> Assignments { get; set; } = new();
         public List<VehicleIssue> Issues { get; set; } = new();
-        public List<Notification> Notifications { get; set; } = new();
 
 
     }

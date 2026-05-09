@@ -23,39 +23,90 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasMaxLength(20)
             .IsRequired();
 
-        b.Property(x => x.ProjectId).HasColumnName("project_id");
-        b.Property(x => x.CustomerId).HasColumnName("customer_id").IsRequired();
+        b.Property(x => x.ProjectId)
+            .HasColumnName("project_id");
 
-        b.Property(x => x.IssueDate).HasColumnName("issue_date").HasColumnType("date").IsRequired();
-        b.Property(x => x.DueDate).HasColumnName("due_date").HasColumnType("date").IsRequired();
+        b.Property(x => x.CustomerId)
+            .HasColumnName("customer_id")
+            .IsRequired();
 
-        b.Property(x => x.Currency).HasColumnName("currency").IsRequired().HasMaxLength(10);
+        b.Property(x => x.IssueDate)
+            .HasColumnName("issue_date")
+            .HasColumnType("date")
+            .IsRequired();
 
-        b.Property(x => x.SubtotalAmount).HasColumnName("subtotal_amount").HasPrecision(18, 2).IsRequired();
-        b.Property(x => x.TaxAmount).HasColumnName("tax_amount").HasPrecision(18, 2).IsRequired();
-        b.Property(x => x.TotalAmount).HasColumnName("total_amount").HasPrecision(18, 2).IsRequired();
+        b.Property(x => x.DueDate)
+            .HasColumnName("due_date")
+            .HasColumnType("date")
+            .IsRequired();
 
-        b.Property(x => x.Note).HasColumnName("note").HasMaxLength(2000);
+        b.Property(x => x.Currency)
+            .HasColumnName("currency")
+            .IsRequired()
+            .HasMaxLength(10);
 
-        b.Property(x => x.CreatedByUserId).HasColumnName("created_by_user_id").IsRequired();
+        b.Property(x => x.SubtotalAmount)
+            .HasColumnName("subtotal_amount")
+            .HasPrecision(18, 2)
+            .IsRequired();
 
-        b.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
-        b.Property(x => x.UpdatedAt).HasColumnName("updated_at").IsRequired();
+        b.Property(x => x.TaxAmount)
+            .HasColumnName("tax_amount")
+            .HasPrecision(18, 2)
+            .IsRequired();
 
-        b.Property(x => x.CustomerNameSnapshot).HasColumnName("customer_name_snapshot").HasMaxLength(300);
-        b.Property(x => x.CustomerTaxIdSnapshot).HasColumnName("customer_tax_id_snapshot").HasMaxLength(50);
-        b.Property(x => x.BillingAddressSnapshot).HasColumnName("billing_address_snapshot").HasMaxLength(500);
+        b.Property(x => x.TotalAmount)
+            .HasColumnName("total_amount")
+            .HasPrecision(18, 2)
+            .IsRequired();
 
-        // relacje (dwukierunkowe)
+        b.Property(x => x.Note)
+            .HasColumnName("note")
+            .HasMaxLength(2000);
+
+        b.Property(x => x.CreatedByUserId)
+            .HasColumnName("created_by_user_id")
+            .IsRequired();
+
+        b.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+
+        b.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+
+        b.Property(x => x.CustomerNameSnapshot)
+            .HasColumnName("customer_name_snapshot")
+            .HasMaxLength(300);
+
+        b.Property(x => x.CustomerTaxIdSnapshot)
+            .HasColumnName("customer_tax_id_snapshot")
+            .HasMaxLength(50);
+
+        b.Property(x => x.BillingAddressSnapshot)
+            .HasColumnName("billing_address_snapshot")
+            .HasMaxLength(500);
+
+        b.Property(x => x.BillingPeriodStart)
+            .HasColumnName("billing_period_start")
+            .HasColumnType("date")
+            .IsRequired();
+
+        b.Property(x => x.BillingPeriodEnd)
+            .HasColumnName("billing_period_end")
+            .HasColumnType("date")
+            .IsRequired();
+
         b.HasOne(x => x.Project)
             .WithMany(p => p.Invoices)
             .HasForeignKey(x => x.ProjectId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         b.HasOne(x => x.Customer)
             .WithMany(c => c.Invoices)
             .HasForeignKey(x => x.CustomerId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         b.HasOne(x => x.CreatedByUser)
             .WithMany(u => u.InvoicesCreated)
@@ -76,5 +127,9 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         b.HasCheckConstraint("ck_invoice_total_match", "total_amount = subtotal_amount + tax_amount");
         b.HasCheckConstraint("ck_invoice_currency_not_empty", "currency <> ''");
         b.HasCheckConstraint("ck_invoice_number_not_empty", "invoice_number <> ''");
+        b.HasCheckConstraint(
+            "ck_invoice_billing_period",
+            "billing_period_end >= billing_period_start"
+);
     }
 }

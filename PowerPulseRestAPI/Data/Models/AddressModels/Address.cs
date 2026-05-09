@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using PowerPulseRestAPI.Data.Enums;
+﻿using PowerPulseRestAPI.Data.Enums;
 
 namespace PowerPulseRestAPI.Data.Models.AddressModels
 {
@@ -13,8 +12,6 @@ namespace PowerPulseRestAPI.Data.Models.AddressModels
         public string BuildingNumber { get; set; } = null!;
         public string? ApartmentNumber { get; set; }
         public string? FullText { get; set; }
-        public AddressEntityType EntityType { get; set; }
-        public long AddressEntityId { get; set; }
         public AddressType AddressType { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }

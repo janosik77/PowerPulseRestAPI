@@ -19,8 +19,8 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .HasColumnName("project_id")
                 .IsRequired();
 
-            b.Property(x => x.CreatedByUserId)
-                .HasColumnName("created_by_user_id")
+            b.Property(x => x.CreatedByEmployeeId)
+                .HasColumnName("created_by_employee_id")
                 .IsRequired();
 
             b.Property(x => x.Url)
@@ -44,16 +44,16 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
 
             b.HasIndex(x => x.ProjectId);
             b.HasIndex(x => new { x.ProjectId, x.CreatedAt });
-            b.HasIndex(x => x.CreatedByUserId);
+            b.HasIndex(x => x.CreatedByEmployeeId);
 
             b.HasOne(x => x.Project)
                 .WithMany(p => p.Attachments)
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            b.HasOne(x => x.CreatedByUser)
+            b.HasOne(x => x.CreatedByEmployee)
                 .WithMany()
-                .HasForeignKey(x => x.CreatedByUserId)
+                .HasForeignKey(x => x.CreatedByEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             b.HasCheckConstraint("ck_project_attachment_url_not_empty", "url <> ''");

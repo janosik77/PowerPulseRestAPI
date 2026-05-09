@@ -1,16 +1,15 @@
-﻿// Controllers/MaterialsController.cs
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PowerPulseRestAPI.DTO.MaterialDto.Request;
-using PowerPulseRestAPI.DTO.MaterialDto.Response;
-using PowerPulseRestAPI.Services.MaterialService;
+using PowerPulseRestAPI.DTO.MaterialDto.Requests;
+using PowerPulseRestAPI.DTO.MaterialDto.Responses;
+using PowerPulseRestAPI.DTO.StockDto.Requests;
+using PowerPulseRestAPI.Services.MaterialS;
+using System.Security.Claims;
 
 namespace PowerPulseRestAPI.Controllers
 {
     [ApiController]
     [Route("api/materials")]
-    [Authorize]
     public class MaterialsController : ControllerBase
     {
         private readonly IMaterialService _materialService;
@@ -20,121 +19,213 @@ namespace PowerPulseRestAPI.Controllers
             _materialService = materialService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<MaterialDto>>> GetAll([FromQuery] bool includeArchived = false, CancellationToken ct = default)
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost("categories")]
+        public async Task<IActionResult> CreateCategory(
+            [FromBody] CreateMaterialCategoryDto dto,
+            CancellationToken cancellationToken)
         {
-            return Ok(await _materialService.GetMaterialsAsync(includeArchived, ct));
+            var id = await _materialService.CreateCategoryAsync(dto, cancellationToken);
+            return Ok(new { id });
         }
 
-        [HttpGet("{materialId:long}")]
-        public async Task<ActionResult<MaterialDto>> GetById(long materialId, CancellationToken ct = default)
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("categories/{id:long}")]
+        public async Task<IActionResult> UpdateCategory(
+            long id,
+            [FromBody] UpdateMaterialCategoryDto dto,
+            CancellationToken cancellationToken)
         {
-            var result = await _materialService.GetMaterialByIdAsync(materialId, ct);
-            if (result == null)
-                return NotFound();
+            await _materialService.UpdateCategoryAsync(id, dto, cancellationToken);
+            return NoContent();
+        }
 
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("categories/select-list")]
+        [ProducesResponseType(typeof(IEnumerable<MaterialCategorySelectListDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<MaterialCategorySelectListDto>>> GetMaterialCategoriesSelectList()
+        {
+            var categories = await _materialService.GetMaterialCategoriesSelectListAsync();
+            return Ok(categories);
+        }
+
+        [Authorize(Roles = "ADMIN,USER")]
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(long id, CancellationToken ct)
+        {
+            var result = await _materialService.GetByIdAsync(id, ct);
             return Ok(result);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
-        [Authorize(Roles = "Manager")]
-        public async Task<ActionResult<MaterialDto>> Create([FromBody] CreateMaterialRequest request, CancellationToken ct = default)
+        public async Task<IActionResult> Create(
+            [FromBody] CreateMaterialDto dto,
+            CancellationToken cancellationToken)
         {
-            var result = await _materialService.CreateMaterialAsync(request, ct);
-            return CreatedAtAction(nameof(GetById), new { materialId = result.Id }, result);
+            var id = await _materialService.CreateAsync(dto, cancellationToken);
+            return Ok(new { id });
         }
 
-        [HttpPut("{materialId:long}")]
-        [Authorize(Roles = "Manager")]
-        public async Task<ActionResult<MaterialDto>> Update(long materialId, [FromBody] UpdateMaterialRequest request, CancellationToken ct = default)
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Update(
+            long id,
+            [FromBody] UpdateMaterialDto dto,
+            CancellationToken cancellationToken)
         {
-            var result = await _materialService.UpdateMaterialAsync(materialId, request, ct);
+            var result = await _materialService.UpdateAsync(id, dto, cancellationToken);
             return Ok(result);
         }
 
-        [HttpDelete("{materialId:long}/soft")]
-        [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> SoftDelete(long materialId, CancellationToken ct = default)
+        [Authorize(Roles = "ADMIN")]
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(
+            long id,
+            CancellationToken cancellationToken)
         {
-            await _materialService.SoftDeleteMaterialAsync(materialId, ct);
+            await _materialService.DeleteAsync(id, cancellationToken);
             return NoContent();
         }
 
-        [HttpPost("{materialId:long}/restore")]
-        [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> Restore(long materialId, CancellationToken ct = default)
+        [Authorize(Roles = "ADMIN,USER")]
+        [HttpPost("movements")]
+        public async Task<IActionResult> CreateMovement(
+            [FromBody] CreateMaterialMovementDto dto,
+            [FromQuery] long createdByUserId,
+            CancellationToken cancellationToken)
         {
-            await _materialService.RestoreMaterialAsync(materialId, ct);
+            await _materialService.CreateMovementAsync(dto, createdByUserId, cancellationToken);
             return NoContent();
         }
 
-        [HttpDelete("{materialId:long}/hard")]
-        [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> HardDelete(long materialId, CancellationToken ct = default)
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("stock")]
+        public async Task<IActionResult> GetStock(CancellationToken cancellationToken)
         {
-            await _materialService.HardDeleteMaterialAsync(materialId, ct);
+            var result = await _materialService.GetStockAsync(cancellationToken);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("projects/{projectId:long}/balance")]
+        public async Task<IActionResult> GetProjectBalance(
+            long projectId,
+            CancellationToken cancellationToken)
+        {
+            var result = await _materialService.GetProjectBalanceAsync(projectId, cancellationToken);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("projects/{projectId:long}/consumption")]
+        public async Task<IActionResult> GetProjectConsumption(
+            long projectId,
+            CancellationToken cancellationToken)
+        {
+            var result = await _materialService.GetProjectConsumptionAsync(projectId, cancellationToken);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpPost("low-stock-notes")]
+        public async Task<IActionResult> CreateLowStockNote(
+            [FromBody] CreateLowStockNoteDto dto,
+            CancellationToken cancellationToken)
+        {
+            var currentEmployeeId = GetCurrentEmployeeId();
+
+            var created = await _materialService.CreateLowStockNoteAsync(
+                dto,
+                currentEmployeeId,
+                cancellationToken);
+
+            return Ok(created);
+        }
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("low-stock-notes")]
+        public async Task<IActionResult> GetLowStockNotes(
+            CancellationToken cancellationToken)
+        {
+            var currentEmployeeId = GetCurrentEmployeeId();
+            var isAdmin = User.IsInRole("ADMIN");
+
+            var result = await _materialService.GetLowStockNotesAsync(
+                currentEmployeeId,
+                isAdmin,
+                cancellationToken);
+
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("low-stock-notes/{id:long}")]
+        public async Task<IActionResult> GetLowStockNoteById(
+            long id,
+            CancellationToken cancellationToken)
+        {
+            var currentEmployeeId = GetCurrentEmployeeId();
+            var isAdmin = User.IsInRole("ADMIN");
+
+            var result = await _materialService.GetLowStockNoteByIdAsync(
+                id,
+                currentEmployeeId,
+                isAdmin,
+                cancellationToken);
+
+            return Ok(result);
+        }
+
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpPut("low-stock-notes/{id:long}")]
+        public async Task<IActionResult> UpdateLowStockNote(
+            long id,
+            [FromBody] UpdateLowStockNoteDto dto,
+            CancellationToken cancellationToken)
+        {
+            var currentEmployeeId = GetCurrentEmployeeId();
+            var isAdmin = User.IsInRole("ADMIN");
+
+            var updated = await _materialService.UpdateLowStockNoteAsync(
+                id,
+                dto,
+                currentEmployeeId,
+                isAdmin,
+                cancellationToken);
+
+            return Ok(updated);
+        }
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpDelete("low-stock-notes/{id:long}")]
+        public async Task<IActionResult> DeleteLowStockNote(
+            long id,
+            CancellationToken cancellationToken)
+        {
+            var currentEmployeeId = GetCurrentEmployeeId();
+            var isAdmin = User.IsInRole("ADMIN");
+
+            await _materialService.DeleteLowStockNoteAsync(
+                id,
+                currentEmployeeId,
+                isAdmin,
+                cancellationToken);
+
             return NoContent();
         }
 
-        [HttpGet("transfer-context/warehouse")]
-        public async Task<ActionResult<MaterialTransferContextDto>> GetWarehouseContext(CancellationToken ct = default)
+        private long GetCurrentEmployeeId()
         {
-            return Ok(await _materialService.GetWarehouseContextAsync(ct));
-        }
+            var employeeIdClaim = User.FindFirst("employeeId")?.Value;
 
-        [HttpGet("transfer-context/projects")]
-        public async Task<ActionResult<List<MaterialProjectLookupDto>>> GetProjects(CancellationToken ct = default)
-        {
-            return Ok(await _materialService.GetAvailableProjectsAsync(GetCurrentUserId(), IsManager(), ct));
-        }
+            if (!long.TryParse(employeeIdClaim, out var employeeId))
+            {
+                throw new UnauthorizedAccessException("Employee id claim is missing or invalid.");
+            }
 
-        [HttpGet("transfer-context/project/{projectId:long}")]
-        public async Task<ActionResult<MaterialTransferContextDto>> GetProjectContext(long projectId, CancellationToken ct = default)
-        {
-            return Ok(await _materialService.GetProjectContextAsync(projectId, GetCurrentUserId(), IsManager(), ct));
-        }
-
-        [HttpPost("transfer/commit")]
-        public async Task<IActionResult> CommitTransfer([FromBody] CommitMaterialTransferRequest request, CancellationToken ct = default)
-        {
-            await _materialService.CommitTransferAsync(request, GetCurrentUserId(), IsManager(), ct);
-            return NoContent();
-        }
-
-        [HttpGet("inventory/project/{projectId:long}")]
-        public async Task<ActionResult<List<ProjectInventoryItemDto>>> GetInventoryPreview(long projectId, CancellationToken ct = default)
-        {
-            return Ok(await _materialService.GetProjectInventoryPreviewAsync(projectId, GetCurrentUserId(), IsManager(), ct));
-        }
-
-        [HttpPost("inventory/submit")]
-        public async Task<IActionResult> SubmitInventory([FromBody] SubmitProjectInventoryRequest request, CancellationToken ct = default)
-        {
-            await _materialService.SubmitProjectInventoryAsync(request, GetCurrentUserId(), IsManager(), ct);
-            return NoContent();
-        }
-
-        [HttpGet("consumes/project/{projectId:long}")]
-        public async Task<ActionResult<List<MaterialProjectConsumeDto>>> GetProjectConsumes(long projectId, CancellationToken ct = default)
-        {
-            return Ok(await _materialService.GetProjectConsumeHistoryAsync(projectId, GetCurrentUserId(), IsManager(), ct));
-        }
-
-        [HttpGet("{materialId:long}/movements")]
-        public async Task<ActionResult<List<MaterialMovementDto>>> GetMaterialMovements(long materialId, CancellationToken ct = default)
-        {
-            return Ok(await _materialService.GetMaterialMovementHistoryAsync(materialId, ct));
-        }
-
-        private long GetCurrentUserId()
-        {
-            var value = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return long.Parse(value!);
-        }
-
-        private bool IsManager()
-        {
-            return User.IsInRole("Manager");
+            return employeeId;
         }
     }
 }

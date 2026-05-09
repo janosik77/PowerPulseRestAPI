@@ -17,24 +17,15 @@ public class KnowledgeCategoryConfiguration : IEntityTypeConfiguration<Knowledge
             .IsRequired()
             .HasMaxLength(200);
 
-        b.Property(x => x.ParentId)
-            .HasColumnName("parent_id");
-
-        b.Property(x => x.Description)
-            .HasColumnName("description")
-            .HasMaxLength(2000);
+        b.Property(x => x.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired()
+            .HasDefaultValue(false);
 
         b.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
         b.Property(x => x.UpdatedAt).HasColumnName("updated_at").IsRequired();
 
-        b.HasOne(x => x.Parent)
-            .WithMany(x => x.Children)
-            .HasForeignKey(x => x.ParentId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         b.HasIndex(x => x.Name).IsUnique();
-        b.HasIndex(x => x.ParentId);
 
-        b.HasCheckConstraint("ck_knowledge_category_not_self_parent", "parent_id IS NULL OR parent_id <> id");
     }
 }

@@ -9,6 +9,7 @@
         public long? ParentId { get; set; }
         public string? Description { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
+        public bool IsDeleted { get; set; }
 
         public ToolCategory? Parent { get; set; }
         public List<ToolCategory> Children { get; set; } = new();

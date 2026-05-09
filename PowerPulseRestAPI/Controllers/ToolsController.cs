@@ -1,88 +1,124 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PowerPulseRestAPI.DTO.ToolDto.Request;
-using PowerPulseRestAPI.DTO.ToolDto.Response;
-using PowerPulseRestAPI.Services.Tools;
+using PowerPulseRestAPI.Data.Models.EmployeeModels;
+using PowerPulseRestAPI.DTO.ToolDto.Requests;
+using PowerPulseRestAPI.Services.ToolsS;
 using System.Security.Claims;
 
 namespace PowerPulseRestAPI.Controllers
 {
     [ApiController]
     [Route("api/tools")]
-    public sealed class ToolsController : ControllerBase
+    public class ToolsController : ControllerBase
     {
-        private readonly IToolService _svc;
+        private readonly IToolService _toolService;
 
-        public ToolsController(IToolService svc)
+        public ToolsController(IToolService toolService)
         {
-            _svc = svc;
+            _toolService = toolService;
         }
 
-        private long GetUserIdOrThrow()
-        {
-            var raw =
-                User.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                User.FindFirstValue("sub") ??
-                User.FindFirstValue("userId");
-
-            if (string.IsNullOrWhiteSpace(raw) || !long.TryParse(raw, out var id))
-                throw new UnauthorizedAccessException("Missing user id claim.");
-
-            return id;
-        }
-
-        private bool IsManager() => User.IsInRole("Manager");
-
-        [HttpGet]
-        [Authorize]
-        public Task<IReadOnlyList<ToolListItemDto>> GetList([FromQuery] ToolListQuery query, CancellationToken ct)
-            => _svc.GetListAsync(query, ct);
-
-        [HttpGet("holdings")]
-        [Authorize]
-        public Task<IReadOnlyList<ToolHoldingDto>> GetHoldings([FromQuery] ToolHoldingsQuery query, CancellationToken ct)
-            => _svc.GetHoldingsAsync(query, GetUserIdOrThrow(), IsManager(), ct);
-
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
-        [Authorize(Roles = "Manager")]
-        public async Task<ActionResult<long>> Create([FromBody] ToolCreateRequest req, CancellationToken ct)
+        public async Task<IActionResult> Create(
+            [FromBody] CreateToolDto dto,
+            CancellationToken cancellationToken)
         {
-            var id = await _svc.CreateAsync(req, GetUserIdOrThrow(), ct);
-            return Ok(id);
+            var createdByUserId = GetCurrentUserId();
+            var created = await _toolService.CreateAsync(dto, createdByUserId, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        [HttpPut("{toolId:long}")]
-        [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> Update(long toolId, [FromBody] ToolUpdateRequest req, CancellationToken ct)
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet]
+        public async Task<IActionResult> GetList(CancellationToken cancellationToken)
         {
-            var ok = await _svc.UpdateAsync(toolId, req, GetUserIdOrThrow(), ct);
-            return ok ? NoContent() : NotFound();
+            var result = await _toolService.GetListAsync(cancellationToken);
+            return Ok(result);
         }
 
-        [HttpDelete("{toolId:long}")]
-        [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> SoftDelete(long toolId, CancellationToken ct)
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(
+            long id,
+            CancellationToken cancellationToken)
         {
-            var ok = await _svc.SoftDeleteAsync(toolId, GetUserIdOrThrow(), ct);
-            return ok ? NoContent() : NotFound();
+            var result = await _toolService.GetByIdAsync(id, cancellationToken);
+            return Ok(result);
         }
 
-        [HttpPost("assign")]
-        [Authorize]
-        public Task<ToolOperationResultDto> Assign([FromBody] ToolAssignRequest req, CancellationToken ct)
-            => _svc.AssignAsync(req, GetUserIdOrThrow(), IsManager(), ct);
-
-        [HttpPost("{toolId:long}/return-to-storage")]
-        [Authorize]
-        public Task<ToolOperationResultDto> ReturnToStorage(long toolId, [FromBody] ToolReturnToStorageRequest req, CancellationToken ct)
-            => _svc.ReturnToStorageAsync(toolId, req, GetUserIdOrThrow(), IsManager(), ct);
-
-        [HttpPost("{toolId:long}/issues")]
-        [Authorize]
-        public async Task<ActionResult<long>> ReportIssue(long toolId, [FromBody] ToolIssueCreateRequest req, CancellationToken ct)
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Update(
+            long id,
+            [FromBody] UpdateToolDto dto,
+            CancellationToken cancellationToken)
         {
-            var id = await _svc.ReportIssueAsync(toolId, req, GetUserIdOrThrow(), ct);
-            return Ok(id);
+            var updated = await _toolService.UpdateAsync(id, dto, cancellationToken);
+            return Ok(updated);
+        }
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpPost("{id:long}/assign")]
+        public async Task<IActionResult> Assign(
+            long id,
+            [FromBody] AssignToolDto dto,
+            CancellationToken cancellationToken)
+        {
+            var createdByUserId = GetCurrentUserId();
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var employeeId = GetCurrentEmployeeId();
+
+            var updated = await _toolService.AssignAsync(role, employeeId, id, dto, createdByUserId, cancellationToken);
+            return Ok(updated);
+        }
+
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpPost("{id:long}/return")]
+        public async Task<IActionResult> Return(
+            long id,
+            [FromBody] ReturnToolDto dto,
+            CancellationToken cancellationToken)
+        {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var employeeId = GetCurrentEmployeeId();
+
+            var updated = await _toolService.ReturnAsync(role, employeeId, id, dto, cancellationToken);
+            return Ok(updated);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(
+            long id,
+            CancellationToken cancellationToken)
+        {
+            await _toolService.DeleteAsync(id, cancellationToken);
+            return NoContent();
+        }
+
+        private long GetCurrentEmployeeId()
+        {
+            var employeeIdClaim = User.FindFirst("employeeId")?.Value;
+
+            if (!long.TryParse(employeeIdClaim, out var employeeId))
+            {
+                throw new UnauthorizedAccessException("Employee id claim is missing or invalid.");
+            }
+
+            return employeeId;
+        }
+
+        private long GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!long.TryParse(userIdClaim, out var userId))
+            {
+                throw new UnauthorizedAccessException("User ID claim is missing or invalid.");
+            }
+
+            return userId;
         }
     }
 }

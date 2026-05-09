@@ -39,6 +39,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("role_id")
             .IsRequired();
 
+        b.Property(x => x.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired()
+            .HasDefaultValue(false);
+
         b.HasIndex(x => x.RoleId);
 
         b.Property(x => x.LastPasswordUpdate).HasColumnName("last_password_update");
@@ -64,11 +69,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         b.HasOne(u => u.Person)
             .WithOne(p => p.User)
             .HasForeignKey<User>(u => u.PersonId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        b.HasMany(u => u.Notifications)
-            .WithOne(n => n.User)
-            .HasForeignKey(n => n.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         b.HasCheckConstraint("ck_user_email_not_empty", "email <> ''");

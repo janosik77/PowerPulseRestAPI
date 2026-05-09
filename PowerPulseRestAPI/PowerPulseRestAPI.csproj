@@ -11,9 +11,13 @@
 
   <ItemGroup>
     <Compile Remove="Data\Models\PurchaseReqModels\**" />
+    <Compile Remove="DTO\StorageMaterialDto\**" />
     <Content Remove="Data\Models\PurchaseReqModels\**" />
+    <Content Remove="DTO\StorageMaterialDto\**" />
     <EmbeddedResource Remove="Data\Models\PurchaseReqModels\**" />
+    <EmbeddedResource Remove="DTO\StorageMaterialDto\**" />
     <None Remove="Data\Models\PurchaseReqModels\**" />
+    <None Remove="DTO\StorageMaterialDto\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,8 +25,8 @@
     <Compile Remove="Data\Configurations\PurchaseRequestItemConfiguration.cs" />
     <Compile Remove="Data\Configurations\ServiceOrderConfiguration.cs" />
     <Compile Remove="Data\Configurations\ServiceOrderHistoryConfiguration.cs" />
-    <Compile Remove="Data\Configurations\StockRequestModelsCfg\StockRequestFulfillmentConfiguration.cs" />
-    <Compile Remove="Data\Configurations\StockRequestModelsCfg\StockRequestFulfillmentItemConfiguration.cs" />
+    <Compile Remove="Data\Configurations\StockModelsCfg\StockRequestFulfillmentConfiguration.cs" />
+    <Compile Remove="Data\Configurations\StockModelsCfg\StockRequestFulfillmentItemConfiguration.cs" />
     <Compile Remove="Data\Configurations\StockRequestReservationConfiguration.cs" />
     <Compile Remove="Data\Models\StockModels\StockRequestFulfillment.cs" />
     <Compile Remove="Data\Models\StockModels\StockRequestFulfillmentItem.cs" />
@@ -30,6 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.25" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.13">
       <PrivateAssets>all</PrivateAssets>
@@ -38,20 +44,14 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.13" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\CustomerDto\Responses\" />
-    <Folder Include="DTO\EmployeeDto\Requests\" />
-    <Folder Include="DTO\EmployeeDto\Responses\" />
-    <Folder Include="DTO\StorageMaterialDto\Requests\" />
-    <Folder Include="DTO\StorageMaterialDto\Responses\" />
-    <Folder Include="DTO\ToolDto\Requests\" />
-    <Folder Include="DTO\ToolDto\Responses\" />
-    <Folder Include="DTO\UsersDto\Responses\" />
-    <Folder Include="Services\NewFolder\" />
     <Folder Include="Validators\" />
+    <Folder Include="wwwroot\uploads\customer\" />
+    <Folder Include="wwwroot\uploads\employee\" />
   </ItemGroup>
 
 </Project>

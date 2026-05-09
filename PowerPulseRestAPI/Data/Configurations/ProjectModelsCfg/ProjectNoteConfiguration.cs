@@ -19,9 +19,6 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .HasColumnName("project_id")
                 .IsRequired();
 
-            b.Property(x => x.WorkSessionId)
-                .HasColumnName("work_session_id");
-
             b.Property(x => x.Content)
                 .HasColumnName("content")
                 .IsRequired()
@@ -33,8 +30,8 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
                 .HasMaxLength(30)
                 .IsRequired();
 
-            b.Property(x => x.CreatedByUserId)
-                .HasColumnName("created_by_user_id")
+            b.Property(x => x.CreatedByEmployeeId)
+                .HasColumnName("created_by_employee_id")
                 .IsRequired();
 
             b.Property(x => x.CreatedAt)
@@ -47,22 +44,16 @@ namespace PowerPulseRestAPI.Data.Configurations.ProjectModelsCfg
 
             b.HasIndex(x => x.ProjectId);
             b.HasIndex(x => new { x.ProjectId, x.CreatedAt });
-            b.HasIndex(x => x.WorkSessionId);
-            b.HasIndex(x => x.CreatedByUserId);
+            b.HasIndex(x => x.CreatedByEmployeeId);
 
             b.HasOne(x => x.Project)
                 .WithMany(p => p.Notes)
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            b.HasOne(x => x.WorkSession)
-                .WithMany()
-                .HasForeignKey(x => x.WorkSessionId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            b.HasOne(x => x.CreatedByUser)
-                .WithMany()
-                .HasForeignKey(x => x.CreatedByUserId)
+            b.HasOne(x => x.CreatedByEmployee)
+                .WithMany(e => e.ProjectNotes)
+                .HasForeignKey(x => x.CreatedByEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             b.HasCheckConstraint("ck_project_notes_updated_at", "updated_at >= created_at");

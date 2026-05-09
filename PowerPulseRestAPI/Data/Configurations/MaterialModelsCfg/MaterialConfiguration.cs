@@ -15,11 +15,6 @@ namespace PowerPulseRestAPI.Data.Configurations.MaterialModelsCfg
             b.Property(x => x.Id)
                 .HasColumnName("id");
 
-            b.Property(x => x.Sku)
-                .HasColumnName("sku")
-                .IsRequired()
-                .HasMaxLength(80);
-
             b.Property(x => x.Name)
                 .HasColumnName("name")
                 .IsRequired()
@@ -73,45 +68,30 @@ namespace PowerPulseRestAPI.Data.Configurations.MaterialModelsCfg
                 .HasColumnName("updated_at")
                 .IsRequired();
 
+            b.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .IsRequired()
+                .HasDefaultValue(false);
+
             b.HasOne(x => x.Category)
                 .WithMany(x => x.Materials)
                 .HasForeignKey(x => x.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            b.HasOne(x => x.Stock)
-                .WithOne(x => x.Material)
-                .HasForeignKey<MaterialStock>(x => x.MaterialId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             b.HasMany(x => x.Movements)
                 .WithOne(x => x.Material)
                 .HasForeignKey(x => x.MaterialId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasMany(x => x.ProjectBalances)
-                .WithOne(x => x.Material)
-                .HasForeignKey(x => x.MaterialId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            b.HasMany(x => x.ProjectConsumes)
-                .WithOne(x => x.Material)
-                .HasForeignKey(x => x.MaterialId)
-                .OnDelete(DeleteBehavior.Restrict);
 
             b.HasIndex(x => x.CategoryId);
             b.HasIndex(x => x.Name);
             b.HasIndex(x => x.IsActive);
 
-            b.HasIndex(x => x.Sku)
-                .IsUnique();
-           
-
             b.HasIndex(x => x.Barcode)
-                .IsUnique()
-                .HasFilter("[barcode] IS NOT NULL");
+                .IsUnique();
 
             b.HasCheckConstraint("ck_material_name_not_empty", "name <> ''");
-            b.HasCheckConstraint("ck_material_sku_not_empty", "sku <> ''");
             b.HasCheckConstraint("ck_material_default_unit_not_empty", "default_unit <> ''");
             b.HasCheckConstraint("ck_material_url_not_empty", "url <> ''");
             b.HasCheckConstraint("ck_material_currency_not_empty", "currency <> ''");

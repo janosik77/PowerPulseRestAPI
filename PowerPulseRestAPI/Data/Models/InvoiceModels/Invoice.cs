@@ -1,7 +1,9 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
 using PowerPulseRestAPI.Data.Models.CustomerModels;
+using PowerPulseRestAPI.Data.Models.MaterialsModels;
 using PowerPulseRestAPI.Data.Models.ProjectModels;
 using PowerPulseRestAPI.Data.Models.UsersModels;
+using PowerPulseRestAPI.Data.Models.WorkSessionModels;
 
 namespace PowerPulseRestAPI.Data.Models.InvoiceModels
 {
@@ -20,9 +22,10 @@ namespace PowerPulseRestAPI.Data.Models.InvoiceModels
         public decimal TotalAmount { get; set; }
         public string? Note { get; set; }
         public long CreatedByUserId { get; set; }
-        public long? IssuedByUserId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
+        public DateOnly BillingPeriodStart { get; set; }
+        public DateOnly BillingPeriodEnd { get; set; }
 
         public string? CustomerNameSnapshot { get; set; }
         public string? CustomerTaxIdSnapshot { get; set; }
@@ -33,5 +36,7 @@ namespace PowerPulseRestAPI.Data.Models.InvoiceModels
         public User? CreatedByUser { get; set; }
         public InvoiceLaborItem? LaborItem { get; set; }
         public List<InvoiceMaterialItem> MaterialItems { get; set; } = new();
+        public List<WorkSession> WorkSessions { get; set; } = new();
+        public List<MaterialMovement> MaterialMovements { get; set; } = new();
     }
 }
