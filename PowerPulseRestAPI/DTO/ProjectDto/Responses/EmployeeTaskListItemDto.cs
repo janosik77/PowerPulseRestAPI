@@ -1,5 +1,4 @@
 ﻿using PowerPulseRestAPI.Data.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace PowerPulseRestAPI.DTO.ProjectDto.Responses
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.ToolDto.Requests;
-using PowerPulseRestAPI.Services.ToolsS;
+using PowerPulseRestAPI.BuissnesLogic.ToolsS;
 
 namespace PowerPulseRestAPI.Controllers
 {

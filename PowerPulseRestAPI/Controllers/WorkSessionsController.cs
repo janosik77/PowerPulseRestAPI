@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.WorkSessionDto.Requests;
-using PowerPulseRestAPI.Services.WorkSessionS;
+using PowerPulseRestAPI.BuissnesLogic.WorkSessionS;
 
 namespace PowerPulseRestAPI.Controllers
 {

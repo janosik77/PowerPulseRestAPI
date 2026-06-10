@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.VehicleDto.Requests;
-using PowerPulseRestAPI.Services.VehiclesS;
+using PowerPulseRestAPI.BuissnesLogic.VehiclesS;
 using System.Security.Claims;
 
 namespace PowerPulseRestAPI.Controllers

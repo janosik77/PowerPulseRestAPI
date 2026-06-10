@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.InvoiceDto.Requests;
-using PowerPulseRestAPI.Services.InvoiceS;
+using PowerPulseRestAPI.BuissnesLogic.InvoiceS;
 
 namespace PowerPulseRestAPI.Controllers
 {
