@@ -1,5 +1,7 @@
 ﻿using PowerPulseRestAPI.DTO.CustomerDto.Requests;
 using PowerPulseRestAPI.DTO.CustomerDto.Responses;
+using PowerPulseRestAPI.DTO.StatsDto.CustomerStats.Responses;
+
 namespace PowerPulseRestAPI.BuissnesLogic.Customers
 {
     public interface ICustomerService
@@ -24,6 +26,8 @@ namespace PowerPulseRestAPI.BuissnesLogic.Customers
         Task DeleteAsync(
             long id, 
             CancellationToken cancellationToken = default);
-
+        
+        Task<CustomerStatsDto> GetStatsAsync(
+            CancellationToken cancellationToken = default);
     }
 }

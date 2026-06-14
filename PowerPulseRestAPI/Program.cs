@@ -12,11 +12,13 @@ using PowerPulseRestAPI.BuissnesLogic.WorkSessionS;
 using PowerPulseRestAPI.BuissnesLogic.InvoiceS;
 using PowerPulseRestAPI.BuissnesLogic.KnowledgeS;
 using PowerPulseRestAPI.BuissnesLogic.TextTemplateS;
+using PowerPulseRestAPI.BuissnesLogic.HomeS;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using PowerPulseRestAPI.BuissnesLogic.Uploads;
 using System.Security.Claims;
+using PowerPulseRestAPI.BuissnesLogic.HomeS;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +41,8 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 builder.Services.AddScoped<IToolCategoryService, ToolCategoryService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IHomeService, HomeService>();
+
 
 
 

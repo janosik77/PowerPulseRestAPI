@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PowerPulseRestAPI.BuissnesLogic.HomeS;
+
 
 namespace PowerPulseRestAPI.Controllers
 {
     [ApiController]
-    [Route("api/analytics")]
+    [Route("api/dashboard")]
     [Authorize(Roles = "ADMIN,USER")]
     public class HomeController : ControllerBase
     {
@@ -17,13 +19,17 @@ namespace PowerPulseRestAPI.Controllers
 
         [HttpGet("dashboard")]
         public async Task<IActionResult> GetDashboard(
-
+        
             CancellationToken cancellationToken)
         {
-            var result = await _analyticsService.GetDashboardAsync(
-                User,
-                cancellationToken);
+            
+            var employeeIdValue = User.FindFirst("employeeId")?.Value;
+            long.TryParse(employeeIdValue, out var employeeId);
 
+            var result = await _homeService.GetDashboardAsync(
+                employeeId,
+                cancellationToken);
+        
             return Ok(result);
         }
     }

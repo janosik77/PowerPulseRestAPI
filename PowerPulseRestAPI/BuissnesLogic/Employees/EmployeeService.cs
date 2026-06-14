@@ -9,6 +9,8 @@ using PowerPulseRestAPI.Data.Models.PersonModels;
 using PowerPulseRestAPI.Mappers.Employees;
 using PowerPulseRestAPI.BuissnesLogic.Security;
 using PowerPulseRestAPI.BuissnesLogic.Uploads;
+using PowerPulseRestAPI.Data.Enums;
+using PowerPulseRestAPI.DTO.StatsDto.EmployeeStats.Responses;
 
 namespace PowerPulseRestAPI.BuissnesLogic.Employees
 {
@@ -29,6 +31,62 @@ namespace PowerPulseRestAPI.BuissnesLogic.Employees
             _fileStorageService = fileStorageService;
         }
 
+        public async Task<EmployeeStatsDto> GetStatsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            var monthStart = new DateOnly(now.Year, now.Month, 1);
+            var monthEnd = monthStart.AddMonths(1);
+
+            var employeesQuery = _dbContext.Employees
+                .AsNoTracking();
+
+            var totalEmployees = await employeesQuery
+                .CountAsync(cancellationToken);
+
+            var activeEmployees = await employeesQuery
+                .CountAsync(e => e.Status == EmployeeStatus.ACTIVE, cancellationToken);
+
+            var unavailableEmployees = await employeesQuery
+                .CountAsync(e => e.Status != EmployeeStatus.ACTIVE, cancellationToken);
+
+            var newThisMonth = await employeesQuery
+                .CountAsync(e =>
+                        e.HireDate >= monthStart &&
+                        e.HireDate < monthEnd,
+                    cancellationToken);
+
+            var recentEmployees = await employeesQuery
+                .OrderByDescending(e => e.HireDate)
+                .ThenByDescending(e => e.CreatedAt)
+                .ThenByDescending(e => e.Id)
+                .Take(3)
+                .Select(e => new RecentEmployeeStatsItemDto
+                {
+                    Id = e.Id,
+                    FullName = e.Person.FirstName + " " + e.Person.LastName,
+                    JobTitle = e.JobTitle,
+                    Department = e.Department,
+                    Status = e.Status,
+                    HireDate = e.HireDate,
+                    CreatedAt = e.CreatedAt
+                })
+                .ToListAsync(cancellationToken);
+
+            return new EmployeeStatsDto
+            {
+                Summary = new EmployeeStatsSummaryDto
+                {
+                    TotalEmployees = totalEmployees,
+                    ActiveEmployees = activeEmployees,
+                    UnavailableEmployees = unavailableEmployees,
+                    NewThisMonth = newThisMonth
+                },
+                RecentEmployees = recentEmployees
+            };
+        }
+        
         public async Task<EmployeeDetailPrivateDto> CreateAsync(
             CreateEmployeeDto dto,
             CancellationToken cancellationToken = default)

@@ -12,5 +12,7 @@ namespace PowerPulseRestAPI.DTO.StatsDto.HomeStats.Responses
         public EmployeeWorkSessionsListItemDto? ActiveWorkSession { get; set; }
         public List<EmployeeTaskListItemDto> AssignedTasks { get; set; } = new();
         public VehicleListItemDto? Vehicle { get; set; }
+        
+        public DashboardEmptyStatesDto EmptyStates { get; set; } = new();
     }
 }

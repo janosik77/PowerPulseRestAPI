@@ -7,6 +7,8 @@ using PowerPulseRestAPI.DTO.CustomerDto.Requests;
 using PowerPulseRestAPI.DTO.CustomerDto.Responses;
 using PowerPulseRestAPI.Mappers.Customers;
 using PowerPulseRestAPI.BuissnesLogic.Uploads;
+using PowerPulseRestAPI.Data.Enums;
+using PowerPulseRestAPI.DTO.StatsDto.CustomerStats.Responses;
 
 namespace PowerPulseRestAPI.BuissnesLogic.Customers
 {
@@ -278,6 +280,72 @@ namespace PowerPulseRestAPI.BuissnesLogic.Customers
                 .FirstAsync(x => x.Id == id, cancellationToken);
 
             return updated.ToDetailsDto();
+        }
+        
+        public async Task<CustomerStatsDto> GetStatsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            var monthStart = new DateTimeOffset(
+                now.Year,
+                now.Month,
+                1,
+                0,
+                0,
+                0,
+                TimeSpan.Zero);
+
+            var monthEnd = monthStart.AddMonths(1);
+
+            var customersQuery = _dbContext.Customers
+                .AsNoTracking();
+
+            var totalCustomers = await customersQuery
+                .CountAsync(cancellationToken);
+
+            var activeCustomers = await customersQuery
+                .CountAsync(
+                    c => c.Status == CustomerStatus.ACTIVE,
+                    cancellationToken);
+
+            var newThisMonth = await customersQuery
+                .CountAsync(
+                    c => c.CreatedAt >= monthStart &&
+                         c.CreatedAt < monthEnd,
+                    cancellationToken);
+
+            var customersWithProjects = await customersQuery
+                .CountAsync(
+                    c => c.Projects.Any(),
+                    cancellationToken);
+
+            var recentCustomers = await customersQuery
+                .OrderByDescending(c => c.CreatedAt)
+                .ThenByDescending(c => c.Id)
+                .Take(3)
+                .Select(c => new RecentCustomerDto
+                {
+                    Id = c.Id,
+                    CompanyName = c.CompanyName,
+                    ContactPersonFullName =
+                        c.ContactPerson.FirstName + " " + c.ContactPerson.LastName,
+                    Status = c.Status,
+                    CreatedAt = c.CreatedAt
+                })
+                .ToListAsync(cancellationToken);
+
+            return new CustomerStatsDto
+            {
+                Summary = new CustomerStatsSummaryDto
+                {
+                    TotalCustomers = totalCustomers,
+                    ActiveCustomers = activeCustomers,
+                    NewThisMonth = newThisMonth,
+                    CustomersWithProjects = customersWithProjects
+                },
+                RecentCustomers = recentCustomers
+            };
         }
 
         public async Task DeleteAsync(

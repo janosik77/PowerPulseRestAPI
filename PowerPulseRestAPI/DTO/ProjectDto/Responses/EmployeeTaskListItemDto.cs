@@ -8,7 +8,7 @@ namespace PowerPulseRestAPI.DTO.ProjectDto.Responses
 
         public string Title { get; set; } = null!;
 
-        public string projectName { get; set; } = null!;
+        public string ProjectName { get; set; } = null!;
 
         public string Priority { get; set; } = null!;
 

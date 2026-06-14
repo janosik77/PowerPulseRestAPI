@@ -15,7 +15,17 @@ namespace PowerPulseRestAPI.Controllers
         {
             _customerService = customerService;
         }
+        
+        // [Authorize(Roles = "ADMIN,USER")]
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats(
+            CancellationToken cancellationToken)
+        {
+            var dashboard = await _customerService.GetStatsAsync(cancellationToken);
 
+            return Ok(dashboard);
+        }
+        
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
         public async Task<IActionResult> Create(
