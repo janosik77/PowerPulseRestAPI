@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.EmployeeDto.Requests;
-using PowerPulseRestAPI.Services.Employees;
+using PowerPulseRestAPI.BuissnesLogic.Employees;
 using System.Security.Claims;
 
 

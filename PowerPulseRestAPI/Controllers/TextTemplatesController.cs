@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.TextControlDto.Requests;
 using PowerPulseRestAPI.DTO.TextControlDto.Responses;
-using PowerPulseRestAPI.Services.TextTemplateS;
+using PowerPulseRestAPI.BuissnesLogic.TextTemplateS;
 
 namespace PowerPulseRestAPI.Controllers
 {

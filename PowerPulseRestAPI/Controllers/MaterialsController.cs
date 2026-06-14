@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.MaterialDto.Requests;
 using PowerPulseRestAPI.DTO.MaterialDto.Responses;
 using PowerPulseRestAPI.DTO.StockDto.Requests;
-using PowerPulseRestAPI.Services.MaterialS;
+using PowerPulseRestAPI.BuissnesLogic.MaterialS;
 using System.Security.Claims;
 
 namespace PowerPulseRestAPI.Controllers

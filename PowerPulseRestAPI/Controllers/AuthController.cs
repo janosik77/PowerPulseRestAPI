@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using PowerPulseRestAPI.Data;
 using PowerPulseRestAPI.DTO.Auth.Request;
 using PowerPulseRestAPI.DTO.Auth.Response;
-using PowerPulseRestAPI.Services.Security;
+using PowerPulseRestAPI.BuissnesLogic.Security;
 
 namespace PowerPulseRestAPI.Controllers
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PowerPulseRestAPI.Services.Uploads;
+using PowerPulseRestAPI.BuissnesLogic.Uploads;
 
 namespace PowerPulseRestAPI.Controllers
 {

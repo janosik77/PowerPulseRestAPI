@@ -1,22 +1,23 @@
 using PowerPulseRestAPI.Data;
 using Microsoft.EntityFrameworkCore;
-using PowerPulseRestAPI.Services.VehiclesS;
-using PowerPulseRestAPI.Services.Employees;
-using PowerPulseRestAPI.Services.Customers;
-using PowerPulseRestAPI.Services.MaterialS;
-using PowerPulseRestAPI.Services.ToolsS;
-using PowerPulseRestAPI.Services.Security;
-using PowerPulseRestAPI.Services.ProjectS;
-using PowerPulseRestAPI.Services;
-using PowerPulseRestAPI.Services.WorkSessionS;
-using PowerPulseRestAPI.Services.InvoiceS;
-using PowerPulseRestAPI.Services.KnowledgeS;
-using PowerPulseRestAPI.Services.TextTemplateS;
+using PowerPulseRestAPI.BuissnesLogic.VehiclesS;
+using PowerPulseRestAPI.BuissnesLogic.Employees;
+using PowerPulseRestAPI.BuissnesLogic.Customers;
+using PowerPulseRestAPI.BuissnesLogic.MaterialS;
+using PowerPulseRestAPI.BuissnesLogic.ToolsS;
+using PowerPulseRestAPI.BuissnesLogic.Security;
+using PowerPulseRestAPI.BuissnesLogic.ProjectS;
+using PowerPulseRestAPI.BuissnesLogic;
+using PowerPulseRestAPI.BuissnesLogic.WorkSessionS;
+using PowerPulseRestAPI.BuissnesLogic.InvoiceS;
+using PowerPulseRestAPI.BuissnesLogic.KnowledgeS;
+using PowerPulseRestAPI.BuissnesLogic.TextTemplateS;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using PowerPulseRestAPI.Services.Uploads;
+using PowerPulseRestAPI.BuissnesLogic.Uploads;
 using System.Security.Claims;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,7 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 builder.Services.AddScoped<IToolCategoryService, ToolCategoryService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
 
 
 

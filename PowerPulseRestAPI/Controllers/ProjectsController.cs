@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.ProjectDto.Requests;
-using PowerPulseRestAPI.Services.ProjectS;
+using PowerPulseRestAPI.BuissnesLogic.ProjectS;
 using System.Security.Claims;
 
 namespace PowerPulseRestAPI.Controllers
