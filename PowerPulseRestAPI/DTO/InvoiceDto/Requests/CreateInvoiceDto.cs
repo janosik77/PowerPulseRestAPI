@@ -27,5 +27,7 @@ namespace PowerPulseRestAPI.DTO.InvoiceDto.Requests
 
         [Required, MinLength(1)]
         public List<CreateInvoiceItemDto> Items { get; set; } = new();
+
+        public List<long> WorkSessionIds { get; set; } = [];
     }
 }

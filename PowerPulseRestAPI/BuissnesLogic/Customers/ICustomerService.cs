@@ -1,6 +1,5 @@
 ﻿using PowerPulseRestAPI.DTO.CustomerDto.Requests;
 using PowerPulseRestAPI.DTO.CustomerDto.Responses;
-using PowerPulseRestAPI.DTO.StatsDto.CustomerStats.Responses;
 
 namespace PowerPulseRestAPI.BuissnesLogic.Customers
 {

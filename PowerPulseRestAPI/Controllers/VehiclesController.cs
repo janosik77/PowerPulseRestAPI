@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.VehicleDto.Requests;
 using PowerPulseRestAPI.BuissnesLogic.VehiclesS;
 using System.Security.Claims;
+using PowerPulseRestAPI.DTO.VehicleDto.Responses;
 
 namespace PowerPulseRestAPI.Controllers
 {
@@ -29,9 +30,27 @@ namespace PowerPulseRestAPI.Controllers
 
         [Authorize(Roles = "ADMIN, USER")]
         [HttpGet]
-        public async Task<IActionResult> GetList(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetList(
+            [FromQuery] VehicleFilterDto filter,
+            CancellationToken cancellationToken)
         {
-            var result = await _vehicleService.GetListAsync(cancellationToken);
+            var result = await _vehicleService.GetListAsync(
+                filter,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats(
+            [FromQuery] VehicleFilterDto filter,
+            CancellationToken cancellationToken)
+        {
+            var result = await _vehicleService.GetStatsAsync(
+                filter,
+                cancellationToken);
+
             return Ok(result);
         }
 
@@ -138,6 +157,17 @@ namespace PowerPulseRestAPI.Controllers
         {
             await _vehicleService.DeleteAsync(id, cancellationToken);
             return NoContent();
+        }
+        
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("makes/select-options")]
+        public async Task<IActionResult> GetMakeSelectOptions(
+            CancellationToken cancellationToken)
+        {
+            var result = await _vehicleService.GetMakeSelectOptionsAsync(
+                cancellationToken);
+
+            return Ok(result);
         }
     }
 }

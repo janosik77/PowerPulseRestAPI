@@ -37,5 +37,7 @@ namespace PowerPulseRestAPI.DTO.InvoiceDto.Responses
 
         public InvoiceLaborItemDto? LaborItem { get; set; }
         public List<InvoiceMaterialItemDto> MaterialItems { get; set; } = new();
+        
+        public List<long> WorkSessionIds { get; set; } = [];
     }
 }

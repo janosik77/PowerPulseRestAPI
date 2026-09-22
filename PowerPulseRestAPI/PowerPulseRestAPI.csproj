@@ -50,9 +50,7 @@
 
   <ItemGroup>
     <Folder Include="BuissnesLogic\Analytics\" />
-    <Folder Include="DTO\StatsDto\CustomerStats\Requests\" />
-    <Folder Include="DTO\StatsDto\EmployeeStats\Requests\" />
-    <Folder Include="DTO\StatsDto\HomeStats\Requests\" />
+    <Folder Include="Helpers\" />
     <Folder Include="Validators\" />
     <Folder Include="wwwroot\uploads\customer\" />
     <Folder Include="wwwroot\uploads\employee\" />

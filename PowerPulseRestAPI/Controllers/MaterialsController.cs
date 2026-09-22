@@ -99,11 +99,15 @@ namespace PowerPulseRestAPI.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "ADMIN, USER")]
         [HttpGet("stock")]
-        public async Task<IActionResult> GetStock(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetStock(
+            [FromQuery] MaterialStockFilterDto filter,
+            CancellationToken cancellationToken)
         {
-            var result = await _materialService.GetStockAsync(cancellationToken);
+            var result = await _materialService.GetStockAsync(
+                filter,
+                cancellationToken);
+
             return Ok(result);
         }
 

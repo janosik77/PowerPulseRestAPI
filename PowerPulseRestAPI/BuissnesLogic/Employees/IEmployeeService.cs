@@ -1,6 +1,5 @@
 ﻿using PowerPulseRestAPI.DTO.EmployeeDto.Requests;
 using PowerPulseRestAPI.DTO.EmployeeDto.Responses;
-using PowerPulseRestAPI.DTO.StatsDto.EmployeeStats.Responses;
 
 namespace PowerPulseRestAPI.BuissnesLogic.Employees
 {

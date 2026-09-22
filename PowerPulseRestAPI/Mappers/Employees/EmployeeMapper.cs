@@ -18,7 +18,8 @@ namespace PowerPulseRestAPI.Mappers.Employees
                 JobTitle = employee.JobTitle,
                 Status = employee.Status,
                 AvatarUrl = employee.Person.AvatarUrl ?? string.Empty,
-                IsActive = employee.Person.User?.IsActive ?? false
+                IsActive = employee.Person.User?.IsActive ?? false,
+                Email = employee.Person.Email,
             };
         }
 

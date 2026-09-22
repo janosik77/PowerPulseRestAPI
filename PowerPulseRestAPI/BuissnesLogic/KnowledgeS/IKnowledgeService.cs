@@ -23,12 +23,20 @@ namespace PowerPulseRestAPI.BuissnesLogic.KnowledgeS
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<KnowledgeArticleListItemDto>> GetArticlesAsync(
-            long? currentUserId = null,
+            KnowledgeArticleFilterDto filter,
+            long? currentUserId,
+            bool includeUnpublished,
+            CancellationToken cancellationToken = default);
+        
+        Task<KnowledgeStatsDto> GetStatsAsync(
+            KnowledgeArticleFilterDto filter,
+            bool includeUnpublished,
             CancellationToken cancellationToken = default);
 
         Task<KnowledgeArticleDetailsDto> GetArticleByIdAsync(
             long id,
-            long? currentUserId = null,
+            long? currentUserId,
+            bool includeUnpublished,
             CancellationToken cancellationToken = default);
 
         Task<KnowledgeArticleDetailsDto> UpdateArticleAsync(

@@ -39,6 +39,7 @@ namespace PowerPulseRestAPI.BuissnesLogic.MaterialS
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<MaterialStockDto>> GetStockAsync(
+            MaterialStockFilterDto filter,
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<ProjectMaterialBalanceDto>> GetProjectBalanceAsync(

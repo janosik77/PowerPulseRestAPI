@@ -1,4 +1,4 @@
-namespace PowerPulseRestAPI.DTO.StatsDto.EmployeeStats.Responses;
+namespace PowerPulseRestAPI.DTO.EmployeeDto.Responses;
 
 public class EmployeeStatsDto
 {

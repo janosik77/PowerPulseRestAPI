@@ -78,15 +78,78 @@ namespace PowerPulseRestAPI.BuissnesLogic.VehiclesS
         }
 
         public async Task<IReadOnlyList<VehicleListItemDto>> GetListAsync(
+            VehicleFilterDto filter,
             CancellationToken cancellationToken = default)
         {
-            var vehicles = await GetQuery()
+            var query = GetQuery();
+
+            query = ApplyFilters(query, filter);
+
+            var vehicles = await query
                 .OrderBy(x => x.PlateNumber)
                 .ToListAsync(cancellationToken);
 
             return vehicles
                 .Select(x => x.ToListItemDto())
                 .ToList();
+        }
+        
+        public async Task<VehicleStatsDto> GetStatsAsync(
+            VehicleFilterDto filter,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _dbContext.Vehicles
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .AsQueryable();
+
+            query = ApplyFilters(query, filter);
+
+            var vehicles = await query
+                .Select(x => new
+                {
+                    x.Id,
+                    x.PlateNumber,
+                    x.Make,
+                    x.Model,
+                    x.Status,
+                    ReportsCount = x.Issues.Count
+                })
+                .ToListAsync(cancellationToken);
+
+            var recentAlerts = vehicles
+                .Where(x => x.ReportsCount > 0)
+                .OrderByDescending(x => x.ReportsCount)
+                .ThenBy(x => x.PlateNumber)
+                .Take(5)
+                .Select(x => new VehicleRecentAlertDto
+                {
+                    VehicleId = x.Id,
+                    PlateNumber = x.PlateNumber,
+                    Make = x.Make,
+                    Model = x.Model,
+                    ReportsCount = x.ReportsCount
+                })
+                .ToList();
+
+            return new VehicleStatsDto
+            {
+                Summary = new VehicleStatsSummaryDto
+                {
+                    TotalVehicles = vehicles.Count,
+
+                    ActiveVehicles = vehicles.Count(x =>
+                        x.Status == VehicleStatus.AVAILABLE ||
+                        x.Status == VehicleStatus.ASSIGNED),
+
+                    VehiclesWithIssues = vehicles.Count(x =>
+                        x.ReportsCount > 0),
+
+                    TotalReports = vehicles.Sum(x =>
+                        x.ReportsCount)
+                },
+                RecentAlerts = recentAlerts
+            };
         }
 
         public async Task<VehicleDetailDto> GetByIdAsync(
@@ -405,6 +468,26 @@ namespace PowerPulseRestAPI.BuissnesLogic.VehiclesS
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task<IReadOnlyList<VehicleMakeSelectOptionDto>> GetMakeSelectOptionsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var makes = await _dbContext.Vehicles
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .Where(x => !string.IsNullOrWhiteSpace(x.Make))
+                .Select(x => x.Make)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToListAsync(cancellationToken);
+
+            return makes
+                .Select(x => new VehicleMakeSelectOptionDto
+                {
+                    Value = x
+                })
+                .ToList();
+        }
+        
         private IQueryable<Vehicle> GetQuery()
         {
             return _dbContext.Vehicles
@@ -415,6 +498,61 @@ namespace PowerPulseRestAPI.BuissnesLogic.VehiclesS
                 .Include(x => x.Issues)
                     .ThenInclude(x => x.ReportedByUser)
                         .ThenInclude(x => x.Person);
+        }
+        
+        private static IQueryable<Vehicle> ApplyFilters(
+            IQueryable<Vehicle> query,
+            VehicleFilterDto filter)
+        {
+            if (!string.IsNullOrWhiteSpace(filter.Search))
+            {
+                var search = filter.Search.Trim();
+                var likeSearch = $"%{search}%";
+                var isIdSearch = long.TryParse(search, out var idSearch);
+                var isYearSearch = int.TryParse(search, out var yearSearch);
+
+                query = query.Where(x =>
+                    EF.Functions.Like(x.PlateNumber, likeSearch) ||
+                    (
+                        x.Vin != null &&
+                        EF.Functions.Like(x.Vin, likeSearch)
+                    ) ||
+                    EF.Functions.Like(x.Make, likeSearch) ||
+                    EF.Functions.Like(x.Model, likeSearch) ||
+                    (
+                        isIdSearch &&
+                        x.Id == idSearch
+                    ) ||
+                    (
+                        isYearSearch &&
+                        x.Year == yearSearch
+                    ) ||
+                    x.Assignments.Any(a =>
+                        a.ReturnedAt == null &&
+                        a.Employee != null &&
+                        a.Employee.Person != null &&
+                        (
+                            EF.Functions.Like(a.Employee.Person.FirstName, likeSearch) ||
+                            EF.Functions.Like(a.Employee.Person.LastName, likeSearch) ||
+                            EF.Functions.Like(
+                                a.Employee.Person.FirstName + " " + a.Employee.Person.LastName,
+                                likeSearch)
+                        )));
+            }
+
+            if (filter.Status.HasValue)
+            {
+                query = query.Where(x => x.Status == filter.Status.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.Make))
+            {
+                var make = filter.Make.Trim();
+
+                query = query.Where(x => x.Make == make);
+            }
+
+            return query;
         }
     }
 }

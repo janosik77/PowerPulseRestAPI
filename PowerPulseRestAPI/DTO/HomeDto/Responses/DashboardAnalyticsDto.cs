@@ -2,7 +2,7 @@
 using PowerPulseRestAPI.DTO.VehicleDto.Responses;
 using PowerPulseRestAPI.DTO.WorkSessionDto.Responses;
 
-namespace PowerPulseRestAPI.DTO.StatsDto.HomeStats.Responses
+namespace PowerPulseRestAPI.DTO.HomeDto.Responses
 {
     public class DashboardAnalyticsDto
     {

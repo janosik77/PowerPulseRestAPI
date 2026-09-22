@@ -33,7 +33,8 @@ namespace PowerPulseRestAPI.Mappers.WorkSessions
                 ProjectName = workSession.Project.Name,
                 StartedAt = workSession.StartedAt,
                 EndedAt = workSession.EndedAt,
-                Status = workSession.Status
+                Status = workSession.Status,
+                CustomerName = workSession.Project.Customer.CompanyName
             };
         }
     }

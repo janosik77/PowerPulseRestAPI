@@ -8,6 +8,7 @@ using PowerPulseRestAPI.DTO.ProjectDto.Responses;
 using PowerPulseRestAPI.Mappers.Projects;
 using PowerPulseRestAPI.BuissnesLogic.ProjectS;
 using PowerPulseRestAPI.BuissnesLogic.Uploads;
+using PowerPulseRestAPI.Data.Enums;
 
 namespace PowerPulseRestAPI.BuissnesLogic
 {
@@ -22,6 +23,68 @@ namespace PowerPulseRestAPI.BuissnesLogic
             _fileStorageService = fileStorageService;
         }
 
+        public async Task<ProjectStatsDto> GetStatsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var upcomingLimit = today.AddDays(90);
+
+            var projectsQuery = _dbContext.Projects
+                .AsNoTracking();
+
+            var totalProjects = await projectsQuery
+                .CountAsync(cancellationToken);
+
+            var activeProjects = await projectsQuery
+                .CountAsync(p => p.Status == ProjectStatus.ACTIVE, cancellationToken);
+
+            var completedProjects = await projectsQuery
+                .CountAsync(p => p.Status == ProjectStatus.COMPLETED, cancellationToken);
+
+            var overdueProjects = await projectsQuery
+                .CountAsync(p =>
+                    p.EndDate != null &&
+                    p.EndDate < today &&
+                    p.Status != ProjectStatus.COMPLETED,
+                    cancellationToken);
+
+            var upcomingDeadlines = await projectsQuery
+                .Where(p =>
+                    p.EndDate != null &&
+                    p.EndDate >= today &&
+                    p.EndDate <= upcomingLimit &&
+                    p.Status != ProjectStatus.COMPLETED)
+                .OrderBy(p => p.EndDate)
+                .ThenBy(p => p.Id)
+                .Take(5)
+                .Select(p => new UpcomingProjectDeadlineDto
+                {
+                    Id = p.Id,
+                    Code = p.Code,
+                    Name = p.Name,
+                    CustomerName = p.Customer.CompanyName,
+                    Status = p.Status,
+                    StartDate = p.StartDate,
+                    EndDate = p.EndDate,
+                    DaysLeft = p.EndDate == null
+                        ? 0
+                        : p.EndDate.Value.DayNumber - today.DayNumber
+                })
+                .ToListAsync(cancellationToken);
+
+            return new ProjectStatsDto
+            {
+                Summary = new ProjectStatsSummaryDto
+                {
+                    TotalProjects = totalProjects,
+                    ActiveProjects = activeProjects,
+                    CompletedProjects = completedProjects,
+                    OverdueProjects = overdueProjects
+                },
+                UpcomingDeadlines = upcomingDeadlines
+            };
+        }
+        
         public async Task<ProjectShortDetailsDto> CreateAsync(
             CreateProjectDto dto,
             CancellationToken cancellationToken = default)

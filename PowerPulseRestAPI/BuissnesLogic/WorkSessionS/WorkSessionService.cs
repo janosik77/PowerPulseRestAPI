@@ -19,6 +19,69 @@ namespace PowerPulseRestAPI.BuissnesLogic
             _dbContext = db;
         }
 
+        public async Task<WorkSessionStatsDto> GetStatsAsync(
+            ClaimsPrincipal user,
+            WorkSessionFilterDto filter,
+            CancellationToken cancellationToken = default)
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            var query = _dbContext.WorkSessions
+                .AsNoTracking()
+                .Include(s => s.Employee)
+                .ThenInclude(e => e.Person)
+                .Include(s => s.Project)
+                .AsQueryable();
+
+            query = ApplyFilters(query, filter, user);
+
+            var sessions = await query
+                .Select(s => new
+                {
+                    s.Id,
+                    s.StartedAt,
+                    s.EndedAt,
+                    s.Status,
+                    s.InvoiceId,
+                    s.InvoicedAt
+                })
+                .ToListAsync(cancellationToken);
+
+            long totalMilliseconds = 0;
+
+            foreach (var session in sessions)
+            {
+                var end = session.EndedAt ?? now;
+
+                if (end > session.StartedAt)
+                {
+                    totalMilliseconds +=
+                        (long)(end - session.StartedAt).TotalMilliseconds;
+                }
+            }
+
+            var totalHours = totalMilliseconds / 3_600_000d;
+
+            return new WorkSessionStatsDto
+            {
+                Summary = new WorkSessionStatsSummaryDto
+                {
+                    TotalWorkSessions = sessions.Count,
+
+                    TotalMillisecondsWorked = totalMilliseconds,
+                    TotalHoursWorked = totalHours,
+                    TotalHoursWorkedLabel = FormatDuration(totalMilliseconds),
+
+                    ClosedSessions = sessions.Count(s =>
+                        s.Status == WorkSessionStatus.CLOSED),
+
+                    NotInvoicedSessions = sessions.Count(s =>
+                        s.InvoiceId == null &&
+                        s.InvoicedAt == null)
+                }
+            };
+        }
+        
         public async Task<WorkSessionListItemDto> CreateAsync(
             ClaimsPrincipal user,
             CreateWorkSessionDto dto,
@@ -60,18 +123,15 @@ namespace PowerPulseRestAPI.BuissnesLogic
 
             return created.ToListItemDto();
         }
-
+        
         public async Task<IReadOnlyList<WorkSessionListItemDto>> GetListAsync(
             ClaimsPrincipal user,
+            WorkSessionFilterDto filter,
             CancellationToken cancellationToken = default)
         {
             var query = GetQuery();
 
-            if (!IsAdmin(user))
-            {
-                var currentEmployeeId = GetCurrentEmployeeId(user);
-                query = query.Where(x => x.EmployeeId == currentEmployeeId);
-            }
+            query = ApplyFilters(query, filter, user);
 
             var sessions = await query
                 .OrderByDescending(x => x.StartedAt)
@@ -80,6 +140,16 @@ namespace PowerPulseRestAPI.BuissnesLogic
             return sessions
                 .Select(x => x.ToListItemDto())
                 .ToList();
+        }
+        
+        public async Task<IReadOnlyList<WorkSessionListItemDto>> GetListAsync(
+            ClaimsPrincipal user,
+            CancellationToken cancellationToken = default)
+        {
+            return await GetListAsync(
+                user,
+                new WorkSessionFilterDto(),
+                cancellationToken);
         }
 
         public async Task<WorkSessionListItemDto> GetByIdAsync(
@@ -209,7 +279,8 @@ namespace PowerPulseRestAPI.BuissnesLogic
                 .AsNoTracking()
                 .Include(x => x.Employee)
                     .ThenInclude(x => x.Person)
-                .Include(x => x.Project);
+                .Include(x => x.Project)
+                    .ThenInclude(x => x.Customer);
         }
 
         private async Task<WorkSession> GetOwnedOrAccessibleSessionAsync(
@@ -344,6 +415,88 @@ namespace PowerPulseRestAPI.BuissnesLogic
             }
 
             return employeeId;
+        }
+        private static string FormatDuration(long milliseconds)
+        {
+            if (milliseconds <= 0)
+            {
+                return "0h 0m";
+            }
+
+            var totalMinutes = milliseconds / 60_000;
+            var hours = totalMinutes / 60;
+            var minutes = totalMinutes % 60;
+
+            return $"{hours}h {minutes}m";
+        }
+        
+        private IQueryable<WorkSession> ApplyFilters(
+            IQueryable<WorkSession> query,
+            WorkSessionFilterDto filter,
+            ClaimsPrincipal user)
+        {
+            if (!IsAdmin(user))
+            {
+                var currentEmployeeId = GetCurrentEmployeeId(user);
+
+                query = query.Where(s => s.EmployeeId == currentEmployeeId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.Search))
+            {
+                var search = filter.Search.Trim();
+                var likeSearch = $"%{search}%";
+                var isNumericSearch = long.TryParse(search, out var numericSearch);
+
+                query = query.Where(s =>
+                    EF.Functions.Like(s.Project.Name, likeSearch) ||
+                    EF.Functions.Like(s.Project.Code, likeSearch) ||
+                    EF.Functions.Like(s.Employee.Person.FirstName, likeSearch) ||
+                    EF.Functions.Like(s.Employee.Person.LastName, likeSearch) ||
+                    EF.Functions.Like(
+                        s.Employee.Person.FirstName + " " + s.Employee.Person.LastName,
+                        likeSearch) ||
+                    (isNumericSearch && s.Id == numericSearch) ||
+                    (isNumericSearch && s.InvoiceId == numericSearch));
+            }
+
+            if (filter.ProjectId.HasValue)
+            {
+                query = query.Where(s => s.ProjectId == filter.ProjectId.Value);
+            }
+
+            if (filter.Status.HasValue)
+            {
+                query = query.Where(s => (int)s.Status == filter.Status.Value);
+            }
+
+            if (filter.InvoiceStatus == "invoiced")
+            {
+                query = query.Where(s =>
+                    s.InvoiceId != null ||
+                    s.InvoicedAt != null);
+            }
+            else if (filter.InvoiceStatus == "notInvoiced")
+            {
+                query = query.Where(s =>
+                    s.InvoiceId == null &&
+                    s.InvoicedAt == null);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.DateRange) &&
+                filter.DateRange != "all")
+            {
+                var daysText = filter.DateRange.Replace("d", "");
+
+                if (int.TryParse(daysText, out var days))
+                {
+                    var cutoff = DateTimeOffset.UtcNow.AddDays(-days);
+
+                    query = query.Where(s => s.StartedAt >= cutoff);
+                }
+            }
+
+            return query;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using PowerPulseRestAPI.Data.Models.UsersModels;
-using PowerPulseRestAPI.DTO.ToolDto.Requests;
+﻿using PowerPulseRestAPI.DTO.ToolDto.Requests;
 using PowerPulseRestAPI.DTO.ToolDto.Responses;
 
 namespace PowerPulseRestAPI.BuissnesLogic.ToolsS
@@ -12,8 +11,21 @@ namespace PowerPulseRestAPI.BuissnesLogic.ToolsS
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<ToolListItemDto>> GetListAsync(
+            ToolFilterDto filter,
             CancellationToken cancellationToken = default);
 
+        Task<ToolStatsDto> GetStatsAsync(
+            ToolFilterDto filter,
+            CancellationToken cancellationToken = default);
+        
+        Task<IReadOnlyList<RecentToolAssignmentDto>> GetRecentAssignmentsAsync(
+            int limit = 3,
+            CancellationToken cancellationToken = default);
+        
+        Task<IReadOnlyList<ToolEmployeeSelectOptionDto>>
+            GetEmployeeSelectOptionsAsync(
+                CancellationToken cancellationToken = default);
+        
         Task<ToolDetailsDto> GetByIdAsync(
             long id,
             CancellationToken cancellationToken = default);

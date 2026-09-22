@@ -5,6 +5,10 @@ namespace PowerPulseRestAPI.BuissnesLogic.ProjectS
 {
     public interface IProjectService
     {
+        
+        Task<ProjectStatsDto> GetStatsAsync(
+            CancellationToken cancellationToken = default);
+        
         Task<ProjectShortDetailsDto> CreateAsync(
             CreateProjectDto dto,
             CancellationToken cancellationToken = default);

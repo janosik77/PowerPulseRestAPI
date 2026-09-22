@@ -3,8 +3,8 @@ using PowerPulseRestAPI.BuissnesLogic.Security;
 using PowerPulseRestAPI.BuissnesLogic.Uploads;
 using PowerPulseRestAPI.Data;
 using PowerPulseRestAPI.Data.Enums;
+using PowerPulseRestAPI.DTO.HomeDto.Responses;
 using PowerPulseRestAPI.DTO.ProjectDto.Responses;
-using PowerPulseRestAPI.DTO.StatsDto.HomeStats.Responses;
 using PowerPulseRestAPI.DTO.VehicleDto.Responses;
 using PowerPulseRestAPI.DTO.WorkSessionDto.Responses;
 
@@ -28,6 +28,7 @@ namespace PowerPulseRestAPI.BuissnesLogic.HomeS
             var sessions = await _dbContext.WorkSessions
                 .AsNoTracking()
                 .Include(s => s.Project)
+                    .ThenInclude(s => s.Customer)
                 .Where(s => s.EmployeeId == employeeId)
                 .ToListAsync(cancellationToken);
 
@@ -270,6 +271,7 @@ namespace PowerPulseRestAPI.BuissnesLogic.HomeS
                 StartedAt = session.StartedAt,
                 EndedAt = session.EndedAt,
                 Status = session.Status,
+                CustomerName = session.Project.Customer.CompanyName,
             };
         }
 

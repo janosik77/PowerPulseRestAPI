@@ -6,6 +6,7 @@ using PowerPulseRestAPI.DTO.KnowlegeDto.Responses;
 using PowerPulseRestAPI.Mappers.Knowledge;
 using PowerPulseRestAPI.BuissnesLogic.KnowledgeS;
 using System;
+using PowerPulseRestAPI.Data.Enums;
 
 namespace PowerPulseRestAPI.BuissnesLogic
 {
@@ -140,12 +141,20 @@ namespace PowerPulseRestAPI.BuissnesLogic
         }
 
         public async Task<IReadOnlyList<KnowledgeArticleListItemDto>> GetArticlesAsync(
-            long? currentUserId = null,
+            KnowledgeArticleFilterDto filter,
+            long? currentUserId,
+            bool includeUnpublished,
             CancellationToken cancellationToken = default)
         {
-            var articles = await GetArticleQuery()
-                .Where(x => !x.IsDeleted)
+            var query = GetArticleQuery()
+                .Where(x => !x.IsDeleted);
+
+            query = ApplyAccessScope(query, includeUnpublished);
+            query = ApplyFilters(query, filter);
+
+            var articles = await query
                 .OrderByDescending(x => x.UpdatedAt)
+                .ThenByDescending(x => x.Id)
                 .ToListAsync(cancellationToken);
 
             return articles
@@ -153,12 +162,59 @@ namespace PowerPulseRestAPI.BuissnesLogic
                 .ToList();
         }
 
-        public async Task<KnowledgeArticleDetailsDto> GetArticleByIdAsync(
-            long id,
-            long? currentUserId = null,
+        public async Task<KnowledgeStatsDto> GetStatsAsync(
+            KnowledgeArticleFilterDto filter,
+            bool includeUnpublished,
             CancellationToken cancellationToken = default)
         {
-            var article = await GetArticleQuery()
+            var query = _dbContext.KnowledgeArticles
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted);
+
+            query = ApplyAccessScope(query, includeUnpublished);
+            query = ApplyFilters(query, filter);
+
+            var articles = await query
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Status
+                })
+                .ToListAsync(cancellationToken);
+
+            return new KnowledgeStatsDto
+            {
+                Summary = new KnowledgeStatsSummaryDto
+                {
+                    TotalArticles = articles.Count,
+
+                    PublishedArticles = articles.Count(x =>
+                        x.Status == PublishStatus.PUBLISHED),
+
+                    DraftArticles = articles.Count(x =>
+                        x.Status == PublishStatus.DRAFT),
+
+                    ArchivedArticles = articles.Count(x =>
+                        x.Status == PublishStatus.ARCHIVED),
+
+                    VisibleArticles = articles.Count(x =>
+                        x.Status == PublishStatus.PUBLISHED)
+                }
+            };
+        }
+        
+        public async Task<KnowledgeArticleDetailsDto> GetArticleByIdAsync(
+            long id,
+            long? currentUserId,
+            bool includeUnpublished,
+            CancellationToken cancellationToken = default)
+        {
+            var query = GetArticleQuery()
+                .Where(x => !x.IsDeleted);
+
+            query = ApplyAccessScope(query, includeUnpublished);
+
+            var article = await query
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
             if (article is null)
@@ -375,6 +431,51 @@ namespace PowerPulseRestAPI.BuissnesLogic
                 .ToListAsync(cancellationToken);
 
             return categories;
+        }
+        
+        private static IQueryable<KnowledgeArticle> ApplyAccessScope(
+            IQueryable<KnowledgeArticle> query,
+            bool includeUnpublished)
+        {
+            if (includeUnpublished)
+            {
+                return query;
+            }
+
+            return query.Where(x => (int)x.Status == 1);
+        }
+        
+        private static IQueryable<KnowledgeArticle> ApplyFilters(
+            IQueryable<KnowledgeArticle> query,
+            KnowledgeArticleFilterDto filter)
+        {
+            if (!string.IsNullOrWhiteSpace(filter.Search))
+            {
+                var search = filter.Search.Trim();
+                var likeSearch = $"%{search}%";
+
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Title, likeSearch) ||
+                    EF.Functions.Like(x.Content, likeSearch) ||
+                    (
+                        x.Category != null &&
+                        EF.Functions.Like(x.Category.Name, likeSearch)
+                    ) ||
+                    (
+                        x.CreatedByUser != null &&
+                        x.CreatedByUser.Person != null &&
+                        EF.Functions.Like(
+                            x.CreatedByUser.Person.FirstName + " " + x.CreatedByUser.Person.LastName,
+                            likeSearch)
+                    ));
+            }
+
+            if (filter.Status.HasValue)
+            {
+                query = query.Where(x => x.Status == filter.Status.Value);
+            }
+
+            return query;
         }
     }
 }

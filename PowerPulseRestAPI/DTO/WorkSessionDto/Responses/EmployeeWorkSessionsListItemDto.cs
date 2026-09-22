@@ -23,6 +23,9 @@ namespace PowerPulseRestAPI.DTO.WorkSessionDto.Responses
 
         [Required]
         public WorkSessionStatus Status { get; set; }
+        
+        [Required]
+        public string CustomerName { get; set; } = null!;
 
     }
 }

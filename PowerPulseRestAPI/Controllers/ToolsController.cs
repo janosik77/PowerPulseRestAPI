@@ -4,6 +4,7 @@ using PowerPulseRestAPI.Data.Models.EmployeeModels;
 using PowerPulseRestAPI.DTO.ToolDto.Requests;
 using PowerPulseRestAPI.BuissnesLogic.ToolsS;
 using System.Security.Claims;
+using PowerPulseRestAPI.DTO.ToolDto.Responses;
 
 namespace PowerPulseRestAPI.Controllers
 {
@@ -31,9 +32,51 @@ namespace PowerPulseRestAPI.Controllers
 
         [Authorize(Roles = "ADMIN, USER")]
         [HttpGet]
-        public async Task<IActionResult> GetList(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetList(
+            [FromQuery] ToolFilterDto filter,
+            CancellationToken cancellationToken)
         {
-            var result = await _toolService.GetListAsync(cancellationToken);
+            var result = await _toolService.GetListAsync(
+                filter,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats(
+            [FromQuery] ToolFilterDto filter,
+            CancellationToken cancellationToken)
+        {
+            var result = await _toolService.GetStatsAsync(
+                filter,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("assignments/recent")]
+        public async Task<IActionResult> GetRecentAssignments(
+            [FromQuery] int limit = 3,
+            CancellationToken cancellationToken = default)
+        {
+            var result = await _toolService.GetRecentAssignmentsAsync(
+                limit,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        
+        [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("employees/select-options")]
+        public async Task<IActionResult> GetEmployeeSelectOptions(
+            CancellationToken cancellationToken)
+        {
+            var result = await _toolService.GetEmployeeSelectOptionsAsync(
+                cancellationToken);
+
             return Ok(result);
         }
 

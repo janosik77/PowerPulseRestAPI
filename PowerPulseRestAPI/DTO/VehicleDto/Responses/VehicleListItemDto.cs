@@ -12,5 +12,6 @@ namespace PowerPulseRestAPI.DTO.VehicleDto.Responses
         public VehicleStatus Status { get; set; }
         public int Year { get; set; }
         public string Url { get; set; } = null!;
+        public int VehicleIssueCount { get; set; }
     }
 }

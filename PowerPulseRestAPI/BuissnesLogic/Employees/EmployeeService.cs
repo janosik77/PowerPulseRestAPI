@@ -10,7 +10,6 @@ using PowerPulseRestAPI.Mappers.Employees;
 using PowerPulseRestAPI.BuissnesLogic.Security;
 using PowerPulseRestAPI.BuissnesLogic.Uploads;
 using PowerPulseRestAPI.Data.Enums;
-using PowerPulseRestAPI.DTO.StatsDto.EmployeeStats.Responses;
 
 namespace PowerPulseRestAPI.BuissnesLogic.Employees
 {
@@ -231,8 +230,9 @@ namespace PowerPulseRestAPI.BuissnesLogic.Employees
             CancellationToken cancellationToken = default)
         {
             var employees = await GetEmployeeQuery()
-                .OrderBy(x => x.Person.LastName)
-                .ThenBy(x => x.Person.FirstName)
+                // .OrderBy(x => x.Person.LastName)
+                // .ThenBy(x => x.Person.FirstName)
+                .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync(cancellationToken);
 
             return employees
@@ -271,8 +271,35 @@ namespace PowerPulseRestAPI.BuissnesLogic.Employees
 
             
 
-            var decryptedIdentifier = _encryptionService.Decrypt(identifier.EncryptedSSN);
-            var decryptedAccountNumber = _encryptionService.Decrypt(employee.AccountEncrypted);
+            // var decryptedIdentifier = _encryptionService.Decrypt(identifier.EncryptedSSN);
+            // var decryptedAccountNumber = _encryptionService.Decrypt(employee.AccountEncrypted);
+            
+            string decryptedIdentifier;
+            string decryptedAccountNumber;
+
+            try
+            {
+                decryptedIdentifier = _encryptionService.Decrypt(identifier.EncryptedSSN);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot decrypt SSN for employee {employee.Id}. " +
+                    $"EncryptedSSN length: {identifier.EncryptedSSN?.Length}",
+                    ex);
+            }
+
+            try
+            {
+                decryptedAccountNumber = _encryptionService.Decrypt(employee.AccountEncrypted);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot decrypt account number for employee {employee.Id}. " +
+                    $"AccountEncrypted length: {employee.AccountEncrypted?.Length}",
+                    ex);
+            }
 
             return employee.ToPrivateDetailsDto(decryptedIdentifier, decryptedAccountNumber);
         }

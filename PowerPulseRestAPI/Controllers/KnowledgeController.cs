@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.KnowlegeDto.Requests;
 using PowerPulseRestAPI.BuissnesLogic.KnowledgeS;
+using PowerPulseRestAPI.DTO.KnowlegeDto.Responses;
 
 namespace PowerPulseRestAPI.Controllers
 {
@@ -14,6 +15,14 @@ namespace PowerPulseRestAPI.Controllers
         public KnowledgeController(IKnowledgeService knowledgeService)
         {
             _knowledgeService = knowledgeService;
+        }
+
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories(CancellationToken cancellationToken)
+        {
+            var categories = await _knowledgeService.GetKnowledgeCategoriesAsync(cancellationToken);
+            
+            return Ok(categories);
         }
 
         [Authorize(Roles = "ADMIN")]
@@ -56,26 +65,60 @@ namespace PowerPulseRestAPI.Controllers
             return CreatedAtAction(nameof(GetArticleById), new { id = created.Id }, created);
         }
 
-        [Authorize(Roles = "ADMIN, USER")]
+        // [Authorize(Roles = "ADMIN, USER")]
         [HttpGet("articles")]
         public async Task<IActionResult> GetArticles(
+            [FromQuery] KnowledgeArticleFilterDto filter,
             [FromQuery] long? currentUserId,
             CancellationToken cancellationToken)
         {
-            var result = await _knowledgeService.GetArticlesAsync(currentUserId, cancellationToken);
+            
+            var includeUnpublished = User.IsInRole("ADMIN");
+            
+            var result = await _knowledgeService.GetArticlesAsync(
+                filter,
+                currentUserId,
+                includeUnpublished,
+                cancellationToken);
+            
+            return Ok(result);
+        }
+        
+        // [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("articles/stats")]
+        public async Task<IActionResult> GetStats(
+            [FromQuery] KnowledgeArticleFilterDto filter,
+            CancellationToken cancellationToken)
+        {
+            var includeUnpublished = User.IsInRole("ADMIN");
+
+            var result = await _knowledgeService.GetStatsAsync(
+                filter,
+                includeUnpublished,
+                cancellationToken);
+
             return Ok(result);
         }
 
-        [Authorize(Roles = "ADMIN, USER")]
+        // [Authorize(Roles = "ADMIN, USER")]
         [HttpGet("articles/{id:long}")]
         public async Task<IActionResult> GetArticleById(
             long id,
             [FromQuery] long? currentUserId,
             CancellationToken cancellationToken)
         {
-            var result = await _knowledgeService.GetArticleByIdAsync(id, currentUserId, cancellationToken);
+            var includeUnpublished = User.IsInRole("ADMIN");
+
+            var result = await _knowledgeService.GetArticleByIdAsync(
+                id,
+                currentUserId,
+                includeUnpublished,
+                cancellationToken);
+            
             return Ok(result);
         }
+        
+        
 
         [Authorize(Roles = "ADMIN")]
         [HttpPut("articles/{id:long}")]

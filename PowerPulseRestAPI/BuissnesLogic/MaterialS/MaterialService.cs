@@ -277,11 +277,18 @@ namespace PowerPulseRestAPI.BuissnesLogic
         }
 
         public async Task<IReadOnlyList<MaterialStockDto>> GetStockAsync(
+            MaterialStockFilterDto filter,
             CancellationToken cancellationToken = default)
         {
-            var grouped = await _dbContext.MaterialMovements
+            filter ??= new MaterialStockFilterDto();
+
+            var movementsQuery = _dbContext.MaterialMovements
                 .AsNoTracking()
-                .Include(x => x.Material)
+                .AsQueryable();
+
+            movementsQuery = ApplyStockSearch(movementsQuery, filter);
+
+            var stockQuery = movementsQuery
                 .GroupBy(x => new
                 {
                     x.MaterialId,
@@ -296,20 +303,26 @@ namespace PowerPulseRestAPI.BuissnesLogic
                     MaterialName = g.Key.Name,
                     Manufacturer = g.Key.Manufacturer,
                     Url = g.Key.Url,
-                    Quantity = g.Sum(x =>
-                        x.MovementType == MaterialMovementType.PURCHASE_RECEIPT ? x.Quantity :
-                        x.MovementType == MaterialMovementType.RETURN_FROM_PROJECT ? x.Quantity :
-                        x.MovementType == MaterialMovementType.WAREHOUSE_ADJUSTMENT_INCREASE ? x.Quantity :
-                        x.MovementType == MaterialMovementType.ISSUE_TO_PROJECT ? -x.Quantity :
-                        x.MovementType == MaterialMovementType.WAREHOUSE_ADJUSTMENT_DECREASE ? -x.Quantity :
-                        0m
-                    ),
-                    Unit = g.Key.Unit
-                })
-                .OrderBy(x => x.MaterialName)
-                .ToListAsync(cancellationToken);
 
-            return grouped;
+                    Quantity = g.Sum(x =>
+                        x.MovementType == MaterialMovementType.PURCHASE_RECEIPT
+                            ? x.Quantity
+                            : x.MovementType == MaterialMovementType.RETURN_FROM_PROJECT
+                                ? x.Quantity
+                                : x.MovementType == MaterialMovementType.WAREHOUSE_ADJUSTMENT_INCREASE
+                                    ? x.Quantity
+                                    : x.MovementType == MaterialMovementType.ISSUE_TO_PROJECT
+                                        ? -x.Quantity
+                                        : x.MovementType == MaterialMovementType.WAREHOUSE_ADJUSTMENT_DECREASE
+                                            ? -x.Quantity
+                                            : 0m),
+
+                    Unit = g.Key.Unit
+                });
+
+            stockQuery = ApplyStockSorting(stockQuery, filter);
+
+            return await stockQuery.ToListAsync(cancellationToken);
         }
 
         public async Task<IReadOnlyList<ProjectMaterialBalanceDto>> GetProjectBalanceAsync(
@@ -424,9 +437,15 @@ namespace PowerPulseRestAPI.BuissnesLogic
                 case MaterialMovementType.ISSUE_TO_PROJECT:
                 case MaterialMovementType.RETURN_FROM_PROJECT:
                 case MaterialMovementType.PROJECT_CONSUME:
+                    // if (!dto.ProjectId.HasValue)
+                    // {
+                    //     throw new InvalidOperationException("Selected movement type requires ProjectId.");
+                    // }
+                    // break;
+                case MaterialMovementType.PROJECT_CONSUME_ADJUSTMENT_DECREASE:
                     if (!dto.ProjectId.HasValue)
                     {
-                        throw new InvalidOperationException("Selected movement type requires ProjectId.");
+                        throw new InvalidOperationException("Selected movement type cannot have ProjectId.");
                     }
                     break;
             }
@@ -613,6 +632,89 @@ namespace PowerPulseRestAPI.BuissnesLogic
             }
 
             return material.ToDetailsDto();
+        }
+        
+        private static IQueryable<MaterialMovement> ApplyStockSearch(
+            IQueryable<MaterialMovement> query,
+            MaterialStockFilterDto filter)
+        {
+            if (string.IsNullOrWhiteSpace(filter.Search))
+            {
+                return query;
+            }
+
+            var search = filter.Search.Trim();
+            var likeSearch = $"%{search}%";
+            var isMaterialIdSearch = long.TryParse(search, out var materialId);
+
+            return query.Where(x =>
+                (isMaterialIdSearch && x.MaterialId == materialId) ||
+                EF.Functions.Like(x.Material.Name, likeSearch) ||
+                (
+                    x.Material.Manufacturer != null &&
+                    EF.Functions.Like(x.Material.Manufacturer, likeSearch)
+                ));
+        }
+        
+        private static IQueryable<MaterialStockDto> ApplyStockSorting(
+            IQueryable<MaterialStockDto> query,
+            MaterialStockFilterDto filter)
+        {
+            var sortBy = filter.SortBy?
+                .Trim()
+                .ToLowerInvariant();
+
+            var descending = string.Equals(
+                filter.SortOrder,
+                "desc",
+                StringComparison.OrdinalIgnoreCase);
+
+            return sortBy switch
+            {
+                "materialid" or "id" => descending
+                    ? query
+                        .OrderByDescending(x => x.MaterialId)
+                        .ThenBy(x => x.MaterialName)
+                    : query
+                        .OrderBy(x => x.MaterialId)
+                        .ThenBy(x => x.MaterialName),
+
+                "materialname" or "name" => descending
+                    ? query
+                        .OrderByDescending(x => x.MaterialName)
+                        .ThenBy(x => x.MaterialId)
+                    : query
+                        .OrderBy(x => x.MaterialName)
+                        .ThenBy(x => x.MaterialId),
+
+                "manufacturer" => descending
+                    ? query
+                        .OrderByDescending(x => x.Manufacturer)
+                        .ThenBy(x => x.MaterialName)
+                    : query
+                        .OrderBy(x => x.Manufacturer)
+                        .ThenBy(x => x.MaterialName),
+
+                "quantity" => descending
+                    ? query
+                        .OrderByDescending(x => x.Quantity)
+                        .ThenBy(x => x.MaterialName)
+                    : query
+                        .OrderBy(x => x.Quantity)
+                        .ThenBy(x => x.MaterialName),
+
+                "unit" => descending
+                    ? query
+                        .OrderByDescending(x => x.Unit)
+                        .ThenBy(x => x.MaterialName)
+                    : query
+                        .OrderBy(x => x.Unit)
+                        .ThenBy(x => x.MaterialName),
+
+                _ => query
+                    .OrderBy(x => x.MaterialName)
+                    .ThenBy(x => x.MaterialId)
+            };
         }
     }
 }

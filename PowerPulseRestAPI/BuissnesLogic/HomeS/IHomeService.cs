@@ -1,4 +1,4 @@
-using PowerPulseRestAPI.DTO.StatsDto.HomeStats.Responses;
+using PowerPulseRestAPI.DTO.HomeDto.Responses;
 
 namespace PowerPulseRestAPI.BuissnesLogic.HomeS
 {

@@ -77,6 +77,9 @@ namespace PowerPulseRestAPI.Mappers.Invoices
                         LineTax = x.LineTax,
                         LineTotal = x.LineTotal
                     })
+                    .ToList(),
+                WorkSessionIds = invoice.WorkSessions
+                .Select(ws => ws.Id)
                     .ToList()
             };
         }

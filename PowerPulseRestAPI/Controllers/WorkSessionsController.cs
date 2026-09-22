@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using PowerPulseRestAPI.DTO.WorkSessionDto.Requests;
 using PowerPulseRestAPI.BuissnesLogic.WorkSessionS;
+using PowerPulseRestAPI.DTO.WorkSessionDto.Responses;
 
 namespace PowerPulseRestAPI.Controllers
 {
     [ApiController]
     [Route("api/work-sessions")]
-    [Authorize(Roles = "ADMIN,USER")]
+    // [Authorize(Roles = "ADMIN,USER")]
     public class WorkSessionsController : ControllerBase
     {
         private readonly IWorkSessionService _workSessionService;
@@ -16,7 +17,20 @@ namespace PowerPulseRestAPI.Controllers
         {
             _workSessionService = workSessionService;
         }
+        
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats(
+            [FromQuery] WorkSessionFilterDto filter,
+            CancellationToken cancellationToken)
+        {
+            var stats = await _workSessionService.GetStatsAsync(
+                User,
+                filter,
+                cancellationToken);
 
+            return Ok(stats);
+        }
+        
         [HttpPost]
         public async Task<IActionResult> Create(
             [FromBody] CreateWorkSessionDto dto,
@@ -27,10 +41,16 @@ namespace PowerPulseRestAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetList(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetList(
+            [FromQuery] WorkSessionFilterDto filter,
+            CancellationToken cancellationToken)
         {
-            var result = await _workSessionService.GetListAsync(User, cancellationToken);
-            return Ok(result);
+            var sessions = await _workSessionService.GetListAsync(
+                User,
+                filter,
+                cancellationToken);
+
+            return Ok(sessions);
         }
 
         [HttpGet("{id:long}")]

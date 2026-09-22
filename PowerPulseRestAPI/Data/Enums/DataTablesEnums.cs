@@ -84,7 +84,7 @@
     // =======================================================
 
     /// <summary>Status publikacji</summary>
-    public enum PublishStatus { DRAFT, PUBLISHED, ARCHIVED }
+    public enum PublishStatus { DRAFT = 0, PUBLISHED = 1, ARCHIVED = 2 }
 
     /// <summary>Typ załącznika</summary>
     public enum AttachmentType { PHOTO, PDF, FILE, OTHER }

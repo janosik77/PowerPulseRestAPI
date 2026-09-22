@@ -1,4 +1,4 @@
-namespace PowerPulseRestAPI.DTO.StatsDto.CustomerStats.Responses;
+namespace PowerPulseRestAPI.DTO.CustomerDto.Responses;
 
 public class CustomerStatsSummaryDto
 {

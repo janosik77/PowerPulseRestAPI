@@ -10,6 +10,11 @@ namespace PowerPulseRestAPI.BuissnesLogic.VehiclesS
            CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<VehicleListItemDto>> GetListAsync(
+            VehicleFilterDto filter,
+            CancellationToken cancellationToken = default);
+
+        Task<VehicleStatsDto> GetStatsAsync(
+            VehicleFilterDto filter,
             CancellationToken cancellationToken = default);
 
         Task<VehicleDetailDto> GetByIdAsync(
@@ -54,6 +59,9 @@ namespace PowerPulseRestAPI.BuissnesLogic.VehiclesS
 
         Task DeleteAsync(
             long id,
+            CancellationToken cancellationToken = default);
+        
+        Task<IReadOnlyList<VehicleMakeSelectOptionDto>> GetMakeSelectOptionsAsync(
             CancellationToken cancellationToken = default);
     }
 

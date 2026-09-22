@@ -6,6 +6,12 @@ namespace PowerPulseRestAPI.BuissnesLogic.WorkSessionS
 {
     public interface IWorkSessionService
     {
+        
+        Task<WorkSessionStatsDto> GetStatsAsync(
+            ClaimsPrincipal user,
+            WorkSessionFilterDto filter,
+            CancellationToken cancellationToken = default);
+        
         Task<WorkSessionListItemDto> CreateAsync(
         ClaimsPrincipal user,
         CreateWorkSessionDto dto,
@@ -13,6 +19,7 @@ namespace PowerPulseRestAPI.BuissnesLogic.WorkSessionS
 
         Task<IReadOnlyList<WorkSessionListItemDto>> GetListAsync(
             ClaimsPrincipal user,
+            WorkSessionFilterDto filter,
             CancellationToken cancellationToken = default);
 
         Task<WorkSessionListItemDto> GetByIdAsync(

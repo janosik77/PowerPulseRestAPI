@@ -27,12 +27,30 @@ namespace PowerPulseRestAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        [Authorize(Roles = "ADMIN, USER")]
+        // [Authorize(Roles = "ADMIN, USER")]
         [HttpGet]
-        public async Task<IActionResult> GetList(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetList(
+            [FromQuery] ContentTemplateFilterDto filter,
+            CancellationToken cancellationToken)
         {
-            var result = await _textTemplateService.GetListAsync(cancellationToken);
-            return Ok(result);
+            var templates = await _textTemplateService.GetListAsync(
+                filter,
+                cancellationToken);
+
+            return Ok(templates);
+        }
+        
+        // [Authorize(Roles = "ADMIN, USER")]
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats(
+            [FromQuery] ContentTemplateFilterDto filter,
+            CancellationToken cancellationToken)
+        {
+            var stats = await _textTemplateService.GetStatsAsync(
+                filter,
+                cancellationToken);
+
+            return Ok(stats);
         }
 
         [Authorize(Roles = "ADMIN, USER")]

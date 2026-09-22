@@ -5,6 +5,8 @@ namespace PowerPulseRestAPI.BuissnesLogic.InvoiceS
 {
     public interface IInvoiceService
     {
+        Task<InvoiceStatsDto> GetStatsAsync(
+            CancellationToken cancellationToken = default);
         Task<InvoiceDetailsDto> CreateAsync(
            CreateInvoiceDto dto,
            long createdByUserId,
@@ -21,6 +23,7 @@ namespace PowerPulseRestAPI.BuissnesLogic.InvoiceS
             long projectId,
             DateOnly billingPeriodStart,
             DateOnly billingPeriodEnd,
+            long? invoiceId = null,
             CancellationToken cancellationToken = default);
 
         //Task<InvoiceStatusSelectOptionDto> GetStatusSelectOptionAsync(
@@ -39,5 +42,13 @@ namespace PowerPulseRestAPI.BuissnesLogic.InvoiceS
         Task DeleteAsync(
             long id,
             CancellationToken cancellationToken = default);
+        
+        Task<IReadOnlyList<InvoiceWorkSessionSelectOptionDto>>
+            GetWorkSessionSelectOptionsAsync(
+                long projectId,
+                DateOnly billingPeriodStart,
+                DateOnly billingPeriodEnd,
+                long? invoiceId = null,
+                CancellationToken cancellationToken = default);
     }
 }

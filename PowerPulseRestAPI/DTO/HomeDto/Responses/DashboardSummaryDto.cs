@@ -1,4 +1,4 @@
-﻿namespace PowerPulseRestAPI.DTO.StatsDto.HomeStats.Responses
+﻿namespace PowerPulseRestAPI.DTO.HomeDto.Responses
 {
     public class DashboardSummaryDto
     {

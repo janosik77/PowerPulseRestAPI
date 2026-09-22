@@ -15,7 +15,36 @@ namespace PowerPulseRestAPI.Controllers
         {
             _invoiceService = invoiceService;
         }
+        
+        [HttpGet("work-session-select-options")]
+        public async Task<IActionResult> GetWorkSessionSelectOptions(
+            [FromQuery] long projectId,
+            [FromQuery] DateOnly billingPeriodStart,
+            [FromQuery] DateOnly billingPeriodEnd,
+            [FromQuery] long? invoiceId,
+            CancellationToken cancellationToken)
+        {
+            var result =
+                await _invoiceService.GetWorkSessionSelectOptionsAsync(
+                    projectId,
+                    billingPeriodStart,
+                    billingPeriodEnd,
+                    invoiceId,
+                    cancellationToken);
 
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats(
+            CancellationToken cancellationToken)
+        {
+            var stats = await _invoiceService.GetStatsAsync(cancellationToken);
+
+            return Ok(stats);
+        }
+        
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
         public async Task<IActionResult> Create(
@@ -47,16 +76,33 @@ namespace PowerPulseRestAPI.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpGet("projects/{projectId:long}/material-select-options")]
+        // public async Task<IActionResult> GetMaterialSelectOptions(
+        //     long projectId,
+        //     [FromQuery] DateOnly billingPeriodStart,
+        //     [FromQuery] DateOnly billingPeriodEnd,
+        //     [FromQuery] long? invoiceId = null,
+        //     CancellationToken cancellationToken = default)
+        // {
+        //     var result = await _invoiceService.GetMaterialSelectOptionsAsync(
+        //         projectId,
+        //         billingPeriodStart,
+        //         billingPeriodEnd,
+        //         cancellationToken);
+        //
+        //     return Ok(result);
+        // }
         public async Task<IActionResult> GetMaterialSelectOptions(
-            long projectId,
+            [FromQuery] long projectId,
             [FromQuery] DateOnly billingPeriodStart,
             [FromQuery] DateOnly billingPeriodEnd,
+            [FromQuery] long? invoiceId,
             CancellationToken cancellationToken)
         {
             var result = await _invoiceService.GetMaterialSelectOptionsAsync(
                 projectId,
                 billingPeriodStart,
                 billingPeriodEnd,
+                invoiceId,
                 cancellationToken);
 
             return Ok(result);

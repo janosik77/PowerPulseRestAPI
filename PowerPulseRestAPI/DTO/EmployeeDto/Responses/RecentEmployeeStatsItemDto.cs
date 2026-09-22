@@ -1,6 +1,6 @@
 using PowerPulseRestAPI.Data.Enums;
 
-namespace PowerPulseRestAPI.DTO.StatsDto.EmployeeStats.Responses;
+namespace PowerPulseRestAPI.DTO.EmployeeDto.Responses;
 
 public class RecentEmployeeStatsItemDto
 {

@@ -10,8 +10,13 @@ namespace PowerPulseRestAPI.BuissnesLogic.TextTemplateS
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<TextTemplateListItemDto>> GetListAsync(
+            ContentTemplateFilterDto filter,
             CancellationToken cancellationToken = default);
 
+        Task<ContentTemplateStatsDto> GetStatsAsync(
+            ContentTemplateFilterDto filter,
+            CancellationToken cancellationToken = default);
+        
         Task<TextTemplateDto> GetByIdAsync(
             long id,
             CancellationToken cancellationToken = default);

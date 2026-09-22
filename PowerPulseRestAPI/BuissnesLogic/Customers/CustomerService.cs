@@ -8,7 +8,6 @@ using PowerPulseRestAPI.DTO.CustomerDto.Responses;
 using PowerPulseRestAPI.Mappers.Customers;
 using PowerPulseRestAPI.BuissnesLogic.Uploads;
 using PowerPulseRestAPI.Data.Enums;
-using PowerPulseRestAPI.DTO.StatsDto.CustomerStats.Responses;
 
 namespace PowerPulseRestAPI.BuissnesLogic.Customers
 {
@@ -132,7 +131,7 @@ namespace PowerPulseRestAPI.BuissnesLogic.Customers
             CancellationToken cancellationToken = default)
         {
             var customers = await GetCustomerQuery()
-                .OrderBy(x => x.CompanyName)
+                .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync(cancellationToken);
 
             return customers

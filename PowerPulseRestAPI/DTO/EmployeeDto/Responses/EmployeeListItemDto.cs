@@ -23,5 +23,7 @@ namespace PowerPulseRestAPI.DTO.EmployeeDto.Responses
         public string AvatarUrl { get; set; } = null!;
 
         public bool IsActive { get; set; }
+        
+        public string Email { get; set; }
     }
 }

@@ -17,7 +17,8 @@ namespace PowerPulseRestAPI.Mappers.Vehicles
                 Model = vehicle.Model,
                 Status = vehicle.Status,
                 Year = vehicle.Year,
-                Url = vehicle.Url
+                Url = vehicle.Url,
+                VehicleIssueCount = vehicle.Issues.Count,
             };
         }
 

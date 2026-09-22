@@ -52,17 +52,61 @@ namespace PowerPulseRestAPI.BuissnesLogic
         }
 
         public async Task<IReadOnlyList<TextTemplateListItemDto>> GetListAsync(
+            ContentTemplateFilterDto filter,
             CancellationToken cancellationToken = default)
         {
-            var templates = await _dbContext.TextTemplates
+            var query = _dbContext.TextTemplates
                 .AsNoTracking()
-                .OrderBy(x => x.Key)
-                .ThenBy(x => x.Channel)
+                .AsQueryable();
+
+            query = ApplyFilters(query, filter);
+
+            var templates = await query
+                .OrderBy(t => t.Key)
+                .ThenBy(t => t.Id)
                 .ToListAsync(cancellationToken);
 
             return templates
-                .Select(x => x.ToListItemDto())
+                .Select(t => new TextTemplateListItemDto
+                {
+                    Id = t.Id,
+                    Key = t.Key,
+                    Channel = t.Channel,
+                    TitleTemplate = t.TitleTemplate,
+                    BodyTemplate = t.BodyTemplate,
+                    IsActive = t.IsActive,
+                })
                 .ToList();
+        }
+        
+        public async Task<ContentTemplateStatsDto> GetStatsAsync(
+            ContentTemplateFilterDto filter,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _dbContext.TextTemplates
+                .AsNoTracking()
+                .AsQueryable();
+
+            query = ApplyFilters(query, filter);
+
+            var templates = await query
+                .Select(t => new
+                {
+                    t.Id,
+                    t.Key,
+                    t.IsActive
+                })
+                .ToListAsync(cancellationToken);
+
+            return new ContentTemplateStatsDto
+            {
+                Summary = new ContentTemplateStatsSummaryDto
+                {
+                    TotalTemplates = templates.Count,
+                    ActiveTemplates = templates.Count(t => t.IsActive),
+                    InactiveTemplates = templates.Count(t => !t.IsActive),
+                }
+            };
         }
 
         public async Task<TextTemplateDto> GetByIdAsync(
@@ -159,7 +203,7 @@ namespace PowerPulseRestAPI.BuissnesLogic
         }
 
         public async Task<IReadOnlyList<TextTemplateOptionDto>> GetOptionsAsync(
-    CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default)
         {
             var templates = await _dbContext.TextTemplates
                 .AsNoTracking()
@@ -203,5 +247,28 @@ namespace PowerPulseRestAPI.BuissnesLogic
             ["materialsStorage"] = "Materials Storage",
             ["toolsStorage"] = "Tools Storage"
         };
+        
+        private IQueryable<TextTemplate> ApplyFilters(
+            IQueryable<TextTemplate> query,
+            ContentTemplateFilterDto filter)
+        {
+            if (!string.IsNullOrWhiteSpace(filter.Search))
+            {
+                var search = filter.Search.Trim();
+                var likeSearch = $"%{search}%";
+
+                query = query.Where(t =>
+                    EF.Functions.Like(t.Key, likeSearch) ||
+                    EF.Functions.Like(t.TitleTemplate ?? string.Empty, likeSearch) ||
+                    EF.Functions.Like(t.BodyTemplate, likeSearch));
+            }
+
+            if (filter.IsActive.HasValue)
+            {
+                query = query.Where(t => t.IsActive == filter.IsActive.Value);
+            }
+
+            return query;
+        }
     }
 }
