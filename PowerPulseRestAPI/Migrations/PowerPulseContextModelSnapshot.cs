@@ -185,6 +185,42 @@ namespace PowerPulseRestAPI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PowerPulseRestAPI.Data.Models.DictionaryModels.Dictionary", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("created");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("key");
+
+                    b.Property<DateTimeOffset>("Updated")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("updated");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("dictionary", (string)null);
+                });
+
             modelBuilder.Entity("PowerPulseRestAPI.Data.Models.EmployeeModels.Employee", b =>
                 {
                     b.Property<long>("Id")

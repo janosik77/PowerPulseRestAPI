@@ -19,6 +19,11 @@ using System.Text;
 using PowerPulseRestAPI.BuissnesLogic.Uploads;
 using System.Security.Claims;
 using PowerPulseRestAPI.BuissnesLogic.HomeS;
+using PowerPulseRestAPI.BuissnesLogic.AnalyticsS;
+using PowerPulseRestAPI.BuissnesLogic.DictionaryS;
+using PowerPulseRestAPI.Reports;
+using PowerPulseRestAPI.Reports.Generators;
+using QuestPDF.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,7 +47,11 @@ builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 builder.Services.AddScoped<IToolCategoryService, ToolCategoryService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IHomeService, HomeService>();
-
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IAnalyticsReportService, AnalyticsReportService>();
+builder.Services.AddScoped<IReportGenerator, QuestPdfReportGenerator>();
+builder.Services.AddScoped<IReportGenerator, ClosedXmlReportGenerator>();
+builder.Services.AddScoped<IDictionaryService, DictionaryService>();
 
 
 
@@ -91,10 +100,13 @@ builder.Services.AddCors(options =>
         policy
             .AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .WithExposedHeaders("Content-Disposition");
         // .AllowCredentials();
     });
 });
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 

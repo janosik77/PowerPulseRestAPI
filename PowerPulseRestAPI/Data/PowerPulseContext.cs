@@ -13,6 +13,7 @@ using PowerPulseRestAPI.Data.Models.MaterialsModels;
 using PowerPulseRestAPI.Data.Models.WorkSessionModels;
 using PowerPulseRestAPI.Data.Models.PersonModels;
 using PowerPulseRestAPI.Data.Models.TextControlModels;
+using PowerPulseRestAPI.Data.Models.DictionaryModels;
 
 namespace PowerPulseRestAPI.Data
 {
@@ -80,6 +81,9 @@ namespace PowerPulseRestAPI.Data
 
         // Q) TextControlls
         public DbSet<TextTemplate> TextTemplates => Set<TextTemplate>();
+        
+        // Dictionary
+        public DbSet<Dictionary> Dictionaries => Set<Dictionary>();
 
 
     }
